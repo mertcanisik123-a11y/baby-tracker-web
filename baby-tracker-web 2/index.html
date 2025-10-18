@@ -9,7 +9,7 @@
 <body>
   <header class="topbar">
     <div class="topbar__title">👶 Kıvanç–Selim Takip</div>
-    <button id="themeToggle" class="icon-btn" aria-label="Tema">☾</button>
+    <button id="refreshSummary" class="icon-btn" title="Yenile">↻</button>
   </header>
 
   <main class="container">
@@ -20,14 +20,13 @@
           <div class="muted" id="todayText"></div>
           <h1>Bugün</h1>
         </div>
-        <button id="refreshSummary" class="icon-btn">↻</button>
       </div>
 
       <div class="grid2">
-        <button class="card action" data-open="add" data-tab="feed">🍼 Emzirme</button>
-        <button class="card action" data-open="add" data-tab="sleep">🌙 Uyku</button>
-        <button class="card action" data-open="add" data-tab="diaper">🧷 Bez</button>
-        <button class="card action" data-open="add" data-tab="growth">⚖️ Ölçüm</button>
+        <button class="card action" data-tab="feed">🍼 Emzirme</button>
+        <button class="card action" data-tab="sleep">🌙 Uyku</button>
+        <button class="card action" data-tab="diaper">🧷 Bez</button>
+        <button class="card action" data-tab="growth">⚖️ Ölçüm</button>
       </div>
 
       <h2>Günün Özeti</h2>
@@ -50,13 +49,12 @@
         <button class="tab-btn" data-tab="growth">Ölçüm</button>
       </div>
 
-      <!-- Beslenme Formu -->
+      <!-- Beslenme -->
       <form id="feedForm" class="card">
         <div class="row">
           <label>Tarih<input type="date" id="feedDate" required></label>
           <label>Saat<input type="time" id="feedTime" required></label>
         </div>
-
         <div class="row">
           <label>Tür
             <select id="feedType">
@@ -66,17 +64,14 @@
           </label>
           <label>Taraf
             <select id="feedSide">
-              <option>-</option><option>Sol</option>
-              <option>Sağ</option><option>Her ikisi</option>
+              <option>-</option><option>Sol</option><option>Sağ</option><option>Her ikisi</option>
             </select>
           </label>
         </div>
-
         <div class="row">
           <label>Süre (dk)<input type="number" id="feedDuration" min="0" placeholder="Anne sütü için"></label>
           <label>Miktar (ml)<input type="number" id="feedAmount" min="0" placeholder="Biberon/Mama için"></label>
         </div>
-
         <label>Not<input type="text" id="feedNote" placeholder="İsteğe bağlı"></label>
 
         <div class="quick">
@@ -88,10 +83,10 @@
           <button type="button" class="chip" data-fill="#feedDuration:15">15 dk</button>
         </div>
 
-        <button class="primary" type="submit">Kaydet</button>
+        <button class="primary" type="submit" id="feedSubmit">Kaydet</button>
       </form>
 
-      <!-- Diğer formlar (uyku, bez, ölçüm) listeler kısaltıldı; aynen çalışıyor -->
+      <!-- Bez -->
       <form id="diaperForm" class="card">
         <div class="row">
           <label>Tarih<input type="date" id="diaperDate" required></label>
@@ -109,6 +104,7 @@
         <button class="primary" type="submit">Kaydet</button>
       </form>
 
+      <!-- Uyku -->
       <form id="sleepForm" class="card">
         <div class="row">
           <label>Tarih<input type="date" id="sleepDate" required></label>
@@ -119,6 +115,7 @@
         <button class="primary" type="submit">Kaydet</button>
       </form>
 
+      <!-- Ölçüm -->
       <form id="growthForm" class="card">
         <div class="row">
           <label>Tarih<input type="date" id="growthDate" required></label>
@@ -134,32 +131,28 @@
 
     <!-- GEÇMİŞ -->
     <section id="history" class="page">
-      <div class="filters card">
-        <div class="chips">
-          <button class="chip filter active" data-range="7">7 Gün</button>
-          <button class="chip filter" data-range="14">14 Gün</button>
-          <button class="chip filter" data-range="30">30 Gün</button>
-        </div>
+      <div class="card">
+        <h2>Geçmiş (son 7 gün)</h2>
+        <table id="feedTable" class="table">
+          <thead><tr><th>Tarih</th><th>Saat</th><th>Tür</th><th>Taraf</th><th>Süre</th><th>Miktar</th><th>Not</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
-      <table id="feedTable" class="table card">
-        <thead><tr><th>Tarih</th><th>Saat</th><th>Tür</th><th>Taraf</th><th>Süre</th><th>Miktar</th><th>Not</th><th></th></tr></thead>
-        <tbody></tbody>
-      </table>
     </section>
 
     <!-- REHBER -->
     <section id="guide" class="page">
       <div class="card">
         <h2>Beslenme Rehberi</h2>
-        <p class="muted">Yaşa göre öneri aralığını gösteren basit rehberdir; hekim önerisi önceliklidir.</p>
+        <p class="muted">Yaşa göre öneri aralığı (hekim önerisi önceliklidir).</p>
         <div class="row">
           <label>Bebek Yaşı (Ay) <input type="number" id="ageMonths" min="0" value="1"></label>
         </div>
-        <div id="guideResult" class="guide"></div>
+        <div id="guideResult" class="grid2" style="margin-top:10px"></div>
       </div>
     </section>
 
-    <!-- GRAFİK (şimdilik özet; ileride chart ekleriz) -->
+    <!-- GRAFİK / ÖZET -->
     <section id="charts" class="page">
       <div class="card">
         <h2>Son 7 Gün Özeti</h2>
