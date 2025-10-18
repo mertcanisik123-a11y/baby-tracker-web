@@ -1,12 +1,7 @@
 :root{
-  --bg:#f7f8fa;
-  --card:#ffffff;
-  --text:#1f2937;
-  --muted:#6b7280;
-  --primary:#3b82f6;
-  --border:#e5e7eb;
+  --bg:#f7f8fa; --card:#fff; --text:#1f2937; --muted:#6b7280;
+  --primary:#3b82f6; --border:#e5e7eb;
 }
-
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
 h2,h3{margin:16px 0}
@@ -18,10 +13,8 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);bor
 .topbar__date{font-size:14px;color:var(--muted)}
 
 .container{max-width:980px;margin:0 auto;padding:12px 12px 100px}
-
 .page{display:none}
 .page.active{display:block}
-
 .section-title{margin-top:18px}
 
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -33,8 +26,9 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);bor
 .card__title{font-weight:600}
 .kpi{font-size:28px;font-weight:700}
 .muted{color:var(--muted)}
+.placeholder{height:220px;border:1px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
 
-.action{cursor:pointer;position:relative;z-index:2}
+.action{cursor:pointer;position:relative;z-index:5}
 .list{display:flex;flex-direction:column;gap:8px}
 .list-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px;display:flex;justify-content:space-between;gap:10px}
 .list-item small{color:var(--muted)}
@@ -63,16 +57,5 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);bor
 .bottomnav button{background:#fff;border:none;padding:10px 6px;border-radius:10px;cursor:pointer}
 .bottomnav button.active{color:#fff;background:var(--primary)}
 
-/* Kartlar tıklanabilir olsun */
-.action { cursor: pointer; position: relative; z-index: 2; }
-.grid2 button { pointer-events: auto; }
-
-/* Alt menü sayfayı kapatmasın */
-.bottomnav { z-index: 1000; pointer-events: auto; }
-.container { padding-bottom: 84px; }
-
-/* Her şey tıklanabilir olsun – olası overlay'leri iptal et */
-.page, .container, .grid2, .card, .card * { pointer-events: auto; }
-.action { cursor: pointer; position: relative; z-index: 5; }
-#home { position: relative; z-index: 1; }
-.bottomnav { z-index: 1000; pointer-events: auto; }
+/* Olası overlay sorunlarını kesin kapatıyoruz */
+.page, .container, .grid2, .card, .card * { pointer-events:auto }
