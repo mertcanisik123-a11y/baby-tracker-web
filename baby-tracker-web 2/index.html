@@ -4,40 +4,46 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kıvanç–Selim Takip</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar">
-    <div class="topbar__title">👶 Kıvanç–Selim Takip</div>
-    <button id="refreshSummary" class="icon-btn" title="Yenile">↻</button>
+    <div class="topbar__title">Kıvanç–Selim Takip</div>
+    <div class="topbar__date" id="todayText"></div>
   </header>
 
   <main class="container">
     <!-- ANA SAYFA -->
     <section id="home" class="page active">
-      <div class="section-title">
-        <div>
-          <div class="muted" id="todayText"></div>
-          <h1>Bugün</h1>
-        </div>
-      </div>
-
       <div class="grid2">
-        <button class="card action" data-tab="feed">🍼 Emzirme</button>
-        <button class="card action" data-tab="sleep">🌙 Uyku</button>
-        <button class="card action" data-tab="diaper">🧷 Bez</button>
-        <button class="card action" data-tab="growth">⚖️ Ölçüm</button>
+        <button class="card action" data-tab="feed">
+          <div class="card__icon">🍼</div>
+          <div class="card__title">Emzirme</div>
+        </button>
+        <button class="card action" data-tab="sleep">
+          <div class="card__icon">🌙</div>
+          <div class="card__title">Uyku</div>
+        </button>
+        <button class="card action" data-tab="diaper">
+          <div class="card__icon">🧷</div>
+          <div class="card__title">Bez</div>
+        </button>
+        <button class="card action" data-tab="growth">
+          <div class="card__icon">⚖️</div>
+          <div class="card__title">Ölçüm</div>
+        </button>
       </div>
 
-      <h2>Günün Özeti</h2>
-      <div class="grid3">
-        <div class="stat"><div class="stat_label">Beslenme</div><div class="stat_value" id="sumFeedCount">0</div></div>
-        <div class="stat"><div class="stat_label">Toplam (ml)</div><div class="stat_value" id="sumMl">0</div></div>
-        <div class="stat"><div class="stat_label">Emzirme (dk)</div><div class="stat_value" id="sumMin">0</div></div>
-        <div class="stat"><div class="stat_label">Bez</div><div class="stat_value" id="sumDiaper">0</div></div>
-        <div class="stat"><div class="stat_label">Uyku (dk)</div><div class="stat_value" id="sumSleep">0</div></div>
-        <div class="stat ok"><div class="stat_label">Son Beslenmeden Beri</div><div class="stat_value" id="sinceLastFeed">–</div></div>
+      <h2 class="section-title">Günün Özeti</h2>
+      <div class="grid2">
+        <div class="card"><div class="muted">Beslenme</div><div id="sumFeed" class="kpi">0</div></div>
+        <div class="card"><div class="muted">Uyku (dk)</div><div id="sumSleep" class="kpi">0</div></div>
+        <div class="card"><div class="muted">Bez</div><div id="sumDiaper" class="kpi">0</div></div>
+        <div class="card"><div class="muted">Son Beslenmeden Beri</div><div id="sinceFeed" class="kpi">—</div></div>
       </div>
+
+      <h2 class="section-title">Son Aktiviteler</h2>
+      <div id="recentList" class="list"></div>
     </section>
 
     <!-- EKLE -->
@@ -50,120 +56,125 @@
       </div>
 
       <!-- Beslenme -->
-      <form id="feedForm" class="card">
+      <form id="feedForm" class="card form visible">
+        <label>Saat
+          <input type="datetime-local" id="feedTime" />
+        </label>
+        <label>Tür
+          <select id="feedType">
+            <option value="breast">Emzirme</option>
+            <option value="bottle">Biberon</option>
+          </select>
+        </label>
         <div class="row">
-          <label>Tarih<input type="date" id="feedDate" required></label>
-          <label>Saat<input type="time" id="feedTime" required></label>
-        </div>
-        <div class="row">
-          <label>Tür
-            <select id="feedType">
-              <option>Anne Sütü</option><option>Biberon</option>
-              <option>Mama</option><option>Karışık</option>
-            </select>
-          </label>
-          <label>Taraf
+          <label style="flex:1">Taraf
             <select id="feedSide">
-              <option>-</option><option>Sol</option><option>Sağ</option><option>Her ikisi</option>
+              <option value="left">Sol</option>
+              <option value="right">Sağ</option>
+              <option value="both">İkisi</option>
             </select>
           </label>
-        </div>
-        <div class="row">
-          <label>Süre (dk)<input type="number" id="feedDuration" min="0" placeholder="Anne sütü için"></label>
-          <label>Miktar (ml)<input type="number" id="feedAmount" min="0" placeholder="Biberon/Mama için"></label>
-        </div>
-        <label>Not<input type="text" id="feedNote" placeholder="İsteğe bağlı"></label>
-
-        <div class="quick">
-          <span class="muted">Hızlı:</span>
-          <button type="button" class="chip" data-fill="#feedAmount:120">120 ml</button>
-          <button type="button" class="chip" data-fill="#feedAmount:150">150 ml</button>
-          <button type="button" class="chip" data-fill="#feedAmount:180">180 ml</button>
-          <button type="button" class="chip" data-fill="#feedDuration:10">10 dk</button>
-          <button type="button" class="chip" data-fill="#feedDuration:15">15 dk</button>
-        </div>
-
-        <button class="primary" type="submit" id="feedSubmit">Kaydet</button>
-      </form>
-
-      <!-- Bez -->
-      <form id="diaperForm" class="card">
-        <div class="row">
-          <label>Tarih<input type="date" id="diaperDate" required></label>
-          <label>Saat<input type="time" id="diaperTime" required></label>
-        </div>
-        <div class="row">
-          <label>Tür
-            <select id="diaperType">
-              <option>Çiş</option><option>Kaka</option><option>Karışık</option><option>Sızıntı</option>
-            </select>
+          <label style="flex:1">Süre (dk)
+            <input type="number" id="feedDuration" min="1" value="15" />
           </label>
-          <label>Renk/Kıvam<input type="text" id="diaperColor" placeholder="opsiyonel"></label>
         </div>
-        <label>Not<input type="text" id="diaperNote" placeholder="opsiyonel"></label>
-        <button class="primary" type="submit">Kaydet</button>
+        <label>Miktar (ml) – biberon için
+          <input type="number" id="feedAmount" min="0" placeholder="120" />
+        </label>
+        <label>Not
+          <textarea id="feedNote" placeholder="İsteğe bağlı"></textarea>
+        </label>
+        <button type="button" class="primary" id="saveFeed">Kaydet</button>
       </form>
 
       <!-- Uyku -->
-      <form id="sleepForm" class="card">
-        <div class="row">
-          <label>Tarih<input type="date" id="sleepDate" required></label>
-          <label>Başlangıç<input type="time" id="sleepStart" required></label>
-          <label>Bitiş<input type="time" id="sleepEnd" required></label>
-        </div>
-        <label>Not<input type="text" id="sleepNote" placeholder="opsiyonel"></label>
-        <button class="primary" type="submit">Kaydet</button>
+      <form id="sleepForm" class="card form">
+        <label>Başlangıç
+          <input type="datetime-local" id="sleepStart" />
+        </label>
+        <label>Bitiş
+          <input type="datetime-local" id="sleepEnd" />
+        </label>
+        <label>Not
+          <textarea id="sleepNote" placeholder="İsteğe bağlı"></textarea>
+        </label>
+        <button type="button" class="primary" id="saveSleep">Kaydet</button>
+      </form>
+
+      <!-- Bez -->
+      <form id="diaperForm" class="card form">
+        <label>Saat
+          <input type="datetime-local" id="diaperTime" />
+        </label>
+        <label>Tür
+          <select id="diaperType">
+            <option value="wet">Islak</option>
+            <option value="dirty">Kakalı</option>
+            <option value="both">İkisi</option>
+          </select>
+        </label>
+        <label>Not
+          <textarea id="diaperNote" placeholder="İsteğe bağlı"></textarea>
+        </label>
+        <button type="button" class="primary" id="saveDiaper">Kaydet</button>
       </form>
 
       <!-- Ölçüm -->
-      <form id="growthForm" class="card">
+      <form id="growthForm" class="card form">
+        <label>Tarih
+          <input type="date" id="growthDate" />
+        </label>
         <div class="row">
-          <label>Tarih<input type="date" id="growthDate" required></label>
-          <label>Kilo (gr)<input type="number" id="growthWeight" min="0" required></label>
-          <label>Boy (cm)<input type="number" step="0.1" id="growthHeight"></label>
-          <label>Baş Çevresi<input type="number" step="0.1" id="growthHead"></label>
-          <label>Ateş (°C)<input type="number" step="0.1" id="growthTemp"></label>
+          <label style="flex:1">Kilo (gr)
+            <input type="number" id="weight" min="0" />
+          </label>
+          <label style="flex:1">Boy (cm)
+            <input type="number" id="height" min="0" />
+          </label>
         </div>
-        <label>Not<input type="text" id="growthNote" placeholder="opsiyonel"></label>
-        <button class="primary" type="submit">Kaydet</button>
+        <label>Not
+          <textarea id="growthNote" placeholder="İsteğe bağlı"></textarea>
+        </label>
+        <button type="button" class="primary" id="saveGrowth">Kaydet</button>
       </form>
     </section>
 
     <!-- GEÇMİŞ -->
     <section id="history" class="page">
-      <div class="card">
-        <h2>Geçmiş (son 7 gün)</h2>
-        <table id="feedTable" class="table">
-          <thead><tr><th>Tarih</th><th>Saat</th><th>Tür</th><th>Taraf</th><th>Süre</th><th>Miktar</th><th>Not</th><th></th></tr></thead>
-          <tbody></tbody>
-        </table>
+      <div class="row wrap gap">
+        <button class="chip active" data-filter="all">Tümü</button>
+        <button class="chip" data-filter="feed">Beslenme</button>
+        <button class="chip" data-filter="sleep">Uyku</button>
+        <button class="chip" data-filter="diaper">Bez</button>
+        <button class="chip" data-filter="growth">Ölçüm</button>
       </div>
+      <div id="historyList" class="list"></div>
     </section>
 
     <!-- REHBER -->
     <section id="guide" class="page">
       <div class="card">
-        <h2>Beslenme Rehberi</h2>
-        <p class="muted">Yaşa göre öneri aralığı (hekim önerisi önceliklidir).</p>
-        <div class="row">
-          <label>Bebek Yaşı (Ay) <input type="number" id="ageMonths" min="0" value="1"></label>
-        </div>
-        <div id="guideResult" class="grid2" style="margin-top:10px"></div>
+        <h3>Beslenme Rehberi</h3>
+        <p class="muted">1–2 Ay: Biberon 120–150 ml, Emzirme 7–9 kez/gün (ortalama). Bebeğin sinyallerini izleyin; doktor önerisi önceliklidir.</p>
       </div>
     </section>
 
-    <!-- GRAFİK / ÖZET -->
+    <!-- GRAFİK (şimdilik özet) -->
     <section id="charts" class="page">
       <div class="card">
-        <h2>Son 7 Gün Özeti</h2>
-        <div id="weeklySummary" class="grid3"></div>
+        <h3>Son 7 Gün Özeti</h3>
+        <div id="weeklySummary" class="grid3 tiny">
+          <div><div class="muted">Beslenme</div><div id="wFeed" class="kpi">0</div></div>
+          <div><div class="muted">Uyku (s)</div><div id="wSleep" class="kpi">0</div></div>
+          <div><div class="muted">Bez</div><div id="wDiaper" class="kpi">0</div></div>
+        </div>
       </div>
     </section>
   </main>
 
   <!-- ALT MENÜ -->
   <nav class="bottomnav">
-    <button data-go="home" class="active">Ana Sayfa</button>
+    <button data-go="home"    class="active">Ana Sayfa</button>
     <button data-go="add">Ekle</button>
     <button data-go="history">Geçmiş</button>
     <button data-go="guide">Rehber</button>
