@@ -17,20 +17,16 @@
     <section id="home" class="page active">
       <div class="grid2">
         <button class="card action" data-tab="feed">
-          <div class="card__icon">🍼</div>
-          <div class="card__title">Emzirme</div>
+          <div class="card_icon">🍼</div><div class="card_title">Emzirme</div>
         </button>
         <button class="card action" data-tab="sleep">
-          <div class="card__icon">🌙</div>
-          <div class="card__title">Uyku</div>
+          <div class="card_icon">🌙</div><div class="card_title">Uyku</div>
         </button>
         <button class="card action" data-tab="diaper">
-          <div class="card__icon">🧷</div>
-          <div class="card__title">Bez</div>
+          <div class="card_icon">🧷</div><div class="card_title">Bez</div>
         </button>
         <button class="card action" data-tab="growth">
-          <div class="card__icon">⚖️</div>
-          <div class="card__title">Ölçüm</div>
+          <div class="card_icon">⚖️</div><div class="card_title">Ölçüm</div>
         </button>
       </div>
 
@@ -56,11 +52,11 @@
       </div>
 
       <!-- Beslenme -->
-      <form id="feedForm" class="card form visible">
-        <label>Saat
+      <form id="feedForm" class="card form visible" onsubmit="return false;">
+        <label> Saat
           <input type="datetime-local" id="feedTime" />
         </label>
-        <label>Tür
+        <label> Beslenme Tipi
           <select id="feedType">
             <option value="breast">Emzirme</option>
             <option value="bottle">Biberon</option>
@@ -82,13 +78,13 @@
           <input type="number" id="feedAmount" min="0" placeholder="120" />
         </label>
         <label>Not
-          <textarea id="feedNote" placeholder="İsteğe bağlı"></textarea>
+          <textarea id="feedNote" placeholder="Ek notlar…"></textarea>
         </label>
         <button type="button" class="primary" id="saveFeed">Kaydet</button>
       </form>
 
       <!-- Uyku -->
-      <form id="sleepForm" class="card form">
+      <form id="sleepForm" class="card form" onsubmit="return false;">
         <label>Başlangıç
           <input type="datetime-local" id="sleepStart" />
         </label>
@@ -96,13 +92,13 @@
           <input type="datetime-local" id="sleepEnd" />
         </label>
         <label>Not
-          <textarea id="sleepNote" placeholder="İsteğe bağlı"></textarea>
+          <textarea id="sleepNote" placeholder="Ek notlar…"></textarea>
         </label>
         <button type="button" class="primary" id="saveSleep">Kaydet</button>
       </form>
 
       <!-- Bez -->
-      <form id="diaperForm" class="card form">
+      <form id="diaperForm" class="card form" onsubmit="return false;">
         <label>Saat
           <input type="datetime-local" id="diaperTime" />
         </label>
@@ -114,13 +110,13 @@
           </select>
         </label>
         <label>Not
-          <textarea id="diaperNote" placeholder="İsteğe bağlı"></textarea>
+          <textarea id="diaperNote" placeholder="Ek notlar…"></textarea>
         </label>
         <button type="button" class="primary" id="saveDiaper">Kaydet</button>
       </form>
 
       <!-- Ölçüm -->
-      <form id="growthForm" class="card form">
+      <form id="growthForm" class="card form" onsubmit="return false;">
         <label>Tarih
           <input type="date" id="growthDate" />
         </label>
@@ -133,7 +129,7 @@
           </label>
         </div>
         <label>Not
-          <textarea id="growthNote" placeholder="İsteğe bağlı"></textarea>
+          <textarea id="growthNote" placeholder="Ek notlar…"></textarea>
         </label>
         <button type="button" class="primary" id="saveGrowth">Kaydet</button>
       </form>
@@ -155,33 +151,36 @@
     <section id="guide" class="page">
       <div class="card">
         <h3>Beslenme Rehberi</h3>
-        <p class="muted">1–2 Ay: Biberon 120–150 ml, Emzirme 7–9 kez/gün (ortalama). Bebeğin sinyallerini izleyin; doktor önerisi önceliklidir.</p>
+        <p class="muted">1–2 Ay’da tipik: Biberon 120–150 ml, Emzirme 7–9 kez/gün. (Doktor önerisi önceliklidir.)</p>
       </div>
     </section>
 
-    <!-- GRAFİK (şimdilik özet) -->
+    <!-- GRAFİK (özet) -->
     <section id="charts" class="page">
       <div class="card">
         <h3>Son 7 Gün Özeti</h3>
-        <div id="weeklySummary" class="grid3 tiny">
-          <div><div class="muted">Beslenme</div><div id="wFeed" class="kpi">0</div></div>
-          <div><div class="muted">Uyku (s)</div><div id="wSleep" class="kpi">0</div></div>
-          <div><div class="muted">Bez</div><div id="wDiaper" class="kpi">0</div></div>
+        <div class="grid3 tiny">
+          <div><div class="muted">Günlük Ort. Beslenme</div><div id="wFeed" class="kpi">0.0</div></div>
+          <div><div class="muted">Günlük Ort. Uyku</div><div id="wSleep" class="kpi">0.0s</div></div>
+          <div><div class="muted">Günlük Ort. Bez</div><div id="wDiaper" class="kpi">0.0</div></div>
         </div>
+      </div>
+      <div class="card">
+        <h3>Beslenme Grafiği</h3>
+        <div class="placeholder">Grafik alanı (ileride eklenecek)</div>
       </div>
     </section>
   </main>
 
   <!-- ALT MENÜ -->
   <nav class="bottomnav">
-    <button data-go="home"    class="active">Ana Sayfa</button>
+    <button data-go="home" class="active">Ana Sayfa</button>
     <button data-go="add">Ekle</button>
     <button data-go="history">Geçmiş</button>
     <button data-go="guide">Rehber</button>
     <button data-go="charts">Grafik</button>
   </nav>
 
-  <script src="./config.js"></script>
-  <script src="./app.js"></script>
+  <script src="./app.js?v=100"></script>
 </body>
 </html>
