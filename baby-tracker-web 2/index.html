@@ -1,124 +1,181 @@
 <!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bebek Takip Paneli</title>
-  <link rel="stylesheet" href="/styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kıvanç–Selim Takip</title>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <header>
-    <h1>👶 Bebek Takip Paneli</h1>
-    <nav>
-      <button class="tab-btn" data-tab="feed">Beslenme</button>
-      <button class="tab-btn" data-tab="diaper">Alt Değişim</button>
-      <button class="tab-btn" data-tab="sleep">Uyku</button>
-      <button class="tab-btn" data-tab="growth">Büyüme</button>
-      <button class="tab-btn" data-tab="summary">Özet</button>
-      <button id="exportJson">JSON Dışa Aktar</button>
-      <input type="file" id="importJson" style="display:none" accept="application/json">
-      <button id="importBtn">JSON İçe Aktar</button>
-    </nav>
+  <header class="topbar">
+    <div class="topbar__title">👶 Kıvanç–Selim Takip</div>
+    <button id="themeToggle" class="icon-btn" aria-label="Tema">☾</button>
   </header>
 
-  <main>
-    <section id="feed" class="tab active">
-      <h2>🍼 Beslenme</h2>
-      <form id="feedForm">
-        <label>Tarih <input type="date" id="feedDate" required></label>
-        <label>Saat <input type="time" id="feedTime" required></label>
-        <label>Tür
-          <select id="feedType">
-            <option>Anne Sütü</option>
-            <option>Biberon</option>
-            <option>Mama</option>
-            <option>Karışık</option>
-          </select>
-        </label>
-        <label>Taraf
-          <select id="feedSide">
-            <option>-</option>
-            <option>Sol</option>
-            <option>Sağ</option>
-            <option>Her ikisi</option>
-          </select>
-        </label>
-        <label>Süre (dk) <input type="number" id="feedDuration" min="0" placeholder="Anne sütü için"></label>
-        <label>Miktar (ml) <input type="number" id="feedAmount" min="0" placeholder="Biberon/Mama için"></label>
-        <label>Not <input type="text" id="feedNote" placeholder="İsteğe bağlı"></label>
-        <button type="submit">Kaydet</button>
+  <main class="container">
+    <!-- ANA SAYFA -->
+    <section id="home" class="page active">
+      <div class="section-title">
+        <div>
+          <div class="muted" id="todayText"></div>
+          <h1>Bugün</h1>
+        </div>
+        <button id="refreshSummary" class="icon-btn">↻</button>
+      </div>
+
+      <div class="grid2">
+        <button class="card action" data-open="add" data-tab="feed">🍼 Emzirme</button>
+        <button class="card action" data-open="add" data-tab="sleep">🌙 Uyku</button>
+        <button class="card action" data-open="add" data-tab="diaper">🧷 Bez</button>
+        <button class="card action" data-open="add" data-tab="growth">⚖️ Ölçüm</button>
+      </div>
+
+      <h2>Günün Özeti</h2>
+      <div class="grid3">
+        <div class="stat"><div class="stat_label">Beslenme</div><div class="stat_value" id="sumFeedCount">0</div></div>
+        <div class="stat"><div class="stat_label">Toplam (ml)</div><div class="stat_value" id="sumMl">0</div></div>
+        <div class="stat"><div class="stat_label">Emzirme (dk)</div><div class="stat_value" id="sumMin">0</div></div>
+        <div class="stat"><div class="stat_label">Bez</div><div class="stat_value" id="sumDiaper">0</div></div>
+        <div class="stat"><div class="stat_label">Uyku (dk)</div><div class="stat_value" id="sumSleep">0</div></div>
+        <div class="stat ok"><div class="stat_label">Son Beslenmeden Beri</div><div class="stat_value" id="sinceLastFeed">–</div></div>
+      </div>
+    </section>
+
+    <!-- EKLE -->
+    <section id="add" class="page">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="feed">Beslenme</button>
+        <button class="tab-btn" data-tab="sleep">Uyku</button>
+        <button class="tab-btn" data-tab="diaper">Bez</button>
+        <button class="tab-btn" data-tab="growth">Ölçüm</button>
+      </div>
+
+      <!-- Beslenme Formu -->
+      <form id="feedForm" class="card">
+        <div class="row">
+          <label>Tarih<input type="date" id="feedDate" required></label>
+          <label>Saat<input type="time" id="feedTime" required></label>
+        </div>
+
+        <div class="row">
+          <label>Tür
+            <select id="feedType">
+              <option>Anne Sütü</option><option>Biberon</option>
+              <option>Mama</option><option>Karışık</option>
+            </select>
+          </label>
+          <label>Taraf
+            <select id="feedSide">
+              <option>-</option><option>Sol</option>
+              <option>Sağ</option><option>Her ikisi</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Süre (dk)<input type="number" id="feedDuration" min="0" placeholder="Anne sütü için"></label>
+          <label>Miktar (ml)<input type="number" id="feedAmount" min="0" placeholder="Biberon/Mama için"></label>
+        </div>
+
+        <label>Not<input type="text" id="feedNote" placeholder="İsteğe bağlı"></label>
+
+        <div class="quick">
+          <span class="muted">Hızlı:</span>
+          <button type="button" class="chip" data-fill="#feedAmount:120">120 ml</button>
+          <button type="button" class="chip" data-fill="#feedAmount:150">150 ml</button>
+          <button type="button" class="chip" data-fill="#feedAmount:180">180 ml</button>
+          <button type="button" class="chip" data-fill="#feedDuration:10">10 dk</button>
+          <button type="button" class="chip" data-fill="#feedDuration:15">15 dk</button>
+        </div>
+
+        <button class="primary" type="submit">Kaydet</button>
       </form>
-      <table id="feedTable">
+
+      <!-- Diğer formlar (uyku, bez, ölçüm) listeler kısaltıldı; aynen çalışıyor -->
+      <form id="diaperForm" class="card">
+        <div class="row">
+          <label>Tarih<input type="date" id="diaperDate" required></label>
+          <label>Saat<input type="time" id="diaperTime" required></label>
+        </div>
+        <div class="row">
+          <label>Tür
+            <select id="diaperType">
+              <option>Çiş</option><option>Kaka</option><option>Karışık</option><option>Sızıntı</option>
+            </select>
+          </label>
+          <label>Renk/Kıvam<input type="text" id="diaperColor" placeholder="opsiyonel"></label>
+        </div>
+        <label>Not<input type="text" id="diaperNote" placeholder="opsiyonel"></label>
+        <button class="primary" type="submit">Kaydet</button>
+      </form>
+
+      <form id="sleepForm" class="card">
+        <div class="row">
+          <label>Tarih<input type="date" id="sleepDate" required></label>
+          <label>Başlangıç<input type="time" id="sleepStart" required></label>
+          <label>Bitiş<input type="time" id="sleepEnd" required></label>
+        </div>
+        <label>Not<input type="text" id="sleepNote" placeholder="opsiyonel"></label>
+        <button class="primary" type="submit">Kaydet</button>
+      </form>
+
+      <form id="growthForm" class="card">
+        <div class="row">
+          <label>Tarih<input type="date" id="growthDate" required></label>
+          <label>Kilo (gr)<input type="number" id="growthWeight" min="0" required></label>
+          <label>Boy (cm)<input type="number" step="0.1" id="growthHeight"></label>
+          <label>Baş Çevresi<input type="number" step="0.1" id="growthHead"></label>
+          <label>Ateş (°C)<input type="number" step="0.1" id="growthTemp"></label>
+        </div>
+        <label>Not<input type="text" id="growthNote" placeholder="opsiyonel"></label>
+        <button class="primary" type="submit">Kaydet</button>
+      </form>
+    </section>
+
+    <!-- GEÇMİŞ -->
+    <section id="history" class="page">
+      <div class="filters card">
+        <div class="chips">
+          <button class="chip filter active" data-range="7">7 Gün</button>
+          <button class="chip filter" data-range="14">14 Gün</button>
+          <button class="chip filter" data-range="30">30 Gün</button>
+        </div>
+      </div>
+      <table id="feedTable" class="table card">
         <thead><tr><th>Tarih</th><th>Saat</th><th>Tür</th><th>Taraf</th><th>Süre</th><th>Miktar</th><th>Not</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
     </section>
 
-    <section id="diaper" class="tab">
-      <h2>🧷 Alt Değişim</h2>
-      <form id="diaperForm">
-        <label>Tarih <input type="date" id="diaperDate" required></label>
-        <label>Saat <input type="time" id="diaperTime" required></label>
-        <label>Tür
-          <select id="diaperType">
-            <option>Çiş</option>
-            <option>Kaka</option>
-            <option>Karışık</option>
-            <option>Sızıntı</option>
-          </select>
-        </label>
-        <label>Renk/Kıvam <input type="text" id="diaperColor" placeholder="(opsiyonel)"></label>
-        <label>Not <input type="text" id="diaperNote" placeholder="(opsiyonel)"></label>
-        <button type="submit">Kaydet</button>
-      </form>
-      <table id="diaperTable">
-        <thead><tr><th>Tarih</th><th>Saat</th><th>Tür</th><th>Renk/Kıvam</th><th>Not</th><th></th></tr></thead>
-        <tbody></tbody>
-      </table>
+    <!-- REHBER -->
+    <section id="guide" class="page">
+      <div class="card">
+        <h2>Beslenme Rehberi</h2>
+        <p class="muted">Yaşa göre öneri aralığını gösteren basit rehberdir; hekim önerisi önceliklidir.</p>
+        <div class="row">
+          <label>Bebek Yaşı (Ay) <input type="number" id="ageMonths" min="0" value="1"></label>
+        </div>
+        <div id="guideResult" class="guide"></div>
+      </div>
     </section>
 
-    <section id="sleep" class="tab">
-      <h2>😴 Uyku</h2>
-      <form id="sleepForm">
-        <label>Tarih <input type="date" id="sleepDate" required></label>
-        <label>Başlangıç <input type="time" id="sleepStart" required></label>
-        <label>Bitiş <input type="time" id="sleepEnd" required></label>
-        <label>Not <input type="text" id="sleepNote" placeholder="(opsiyonel)"></label>
-        <button type="submit">Kaydet</button>
-      </form>
-      <table id="sleepTable">
-        <thead><tr><th>Tarih</th><th>Başlangıç</th><th>Bitiş</th><th>Süre (dk)</th><th>Not</th><th></th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <section id="growth" class="tab">
-      <h2>📈 Büyüme</h2>
-      <form id="growthForm">
-        <label>Tarih <input type="date" id="growthDate" required></label>
-        <label>Kilo (gr) <input type="number" id="growthWeight" required min="0"></label>
-        <label>Boy (cm) <input type="number" step="0.1" id="growthHeight"></label>
-        <label>Baş Çevresi (cm) <input type="number" step="0.1" id="growthHead"></label>
-        <label>Ateş (°C) <input type="number" step="0.1" id="growthTemp"></label>
-        <label>Not <input type="text" id="growthNote"></label>
-        <button type="submit">Kaydet</button>
-      </form>
-      <table id="growthTable">
-        <thead><tr><th>Tarih</th><th>Kilo</th><th>Boy</th><th>Baş Çevresi</th><th>Ateş</th><th>Not</th><th></th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <section id="summary" class="tab">
-      <h2>📊 Günlük Özet</h2>
-      <div id="summaryContent"></div>
-      <button id="exportCsv">Bugünün CSV’sini İndir</button>
+    <!-- GRAFİK (şimdilik özet; ileride chart ekleriz) -->
+    <section id="charts" class="page">
+      <div class="card">
+        <h2>Son 7 Gün Özeti</h2>
+        <div id="weeklySummary" class="grid3"></div>
+      </div>
     </section>
   </main>
 
-  <footer>
-    <small>© Bebek Takip • Yerel olarak saklanır (localStorage). İsterseniz Sheets/Supabase’e bağlamak için README’ye bakın.</small>
-  </footer>
+  <!-- ALT MENÜ -->
+  <nav class="bottomnav">
+    <button data-go="home" class="active">Ana Sayfa</button>
+    <button data-go="add">Ekle</button>
+    <button data-go="history">Geçmiş</button>
+    <button data-go="guide">Rehber</button>
+    <button data-go="charts">Grafik</button>
+  </nav>
 
   <script src="/config.js"></script>
   <script src="/app.js"></script>
