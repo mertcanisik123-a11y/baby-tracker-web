@@ -70,3 +70,9 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);bor
 /* Alt menü sayfayı kapatmasın */
 .bottomnav { z-index: 1000; pointer-events: auto; }
 .container { padding-bottom: 84px; }
+
+/* Her şey tıklanabilir olsun – olası overlay'leri iptal et */
+.page, .container, .grid2, .card, .card * { pointer-events: auto; }
+.action { cursor: pointer; position: relative; z-index: 5; }
+#home { position: relative; z-index: 1; }
+.bottomnav { z-index: 1000; pointer-events: auto; }
