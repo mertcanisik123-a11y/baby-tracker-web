@@ -4,7 +4,40 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kıvanç–Selim Takip</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    :root{--bg:#f7f8fa;--card:#fff;--text:#1f2937;--muted:#6b7280;--primary:#3b82f6;--border:#e5e7eb;}
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    h2,h3{margin:16px 0} label{display:block;font-size:14px;margin:6px 0}
+    input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff;font:inherit}
+    .topbar{position:sticky;top:0;background:var(--bg);padding:12px 16px;border-bottom:1px solid var(--border);z-index:3}
+    .topbar_title{font-weight:700}.topbar_date{font-size:14px;color:var(--muted)}
+    .container{max-width:980px;margin:0 auto;padding:12px 12px 100px}
+    .page{display:none}.page.active{display:block}.section-title{margin-top:18px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .grid3.tiny .kpi{font-size:24px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px}
+    .card_icon{font-size:22px;margin-bottom:6px}.card_title{font-weight:600}
+    .kpi{font-size:28px;font-weight:700}.muted{color:var(--muted)}
+    .placeholder{height:220px;border:1px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+    .action{cursor:pointer;position:relative;z-index:5}
+    .list{display:flex;flex-direction:column;gap:8px}
+    .list-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px;display:flex;justify-content:space-between;gap:10px}
+    .list-item small{color:var(--muted)}
+    .row{display:flex;gap:12px}.wrap{flex-wrap:wrap}.gap{gap:8px}
+    .tabs{display:flex;gap:8px;margin-bottom:10px}
+    .tab-btn{padding:10px 12px;border:1px solid var(--border);background:#fff;border-radius:999px;cursor:pointer}
+    .tab-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .form{display:none}.form.visible{display:block}
+    .primary{background:var(--primary);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;margin-top:6px}
+    .chip{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#fff;cursor:pointer}
+    .chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .bottomnav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:8px;z-index:1000;pointer-events:auto}
+    .bottomnav button{background:#fff;border:none;padding:10px 6px;border-radius:10px;cursor:pointer}
+    .bottomnav button.active{color:#fff;background:var(--primary)}
+    /* Olası overlay/pointer sorunlarını tamamen kapat */
+    .page,.container,.grid2,.card,.card *{pointer-events:auto}
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -16,18 +49,10 @@
     <!-- ANA SAYFA -->
     <section id="home" class="page active">
       <div class="grid2">
-        <button class="card action" data-tab="feed">
-          <div class="card_icon">🍼</div><div class="card_title">Emzirme</div>
-        </button>
-        <button class="card action" data-tab="sleep">
-          <div class="card_icon">🌙</div><div class="card_title">Uyku</div>
-        </button>
-        <button class="card action" data-tab="diaper">
-          <div class="card_icon">🧷</div><div class="card_title">Bez</div>
-        </button>
-        <button class="card action" data-tab="growth">
-          <div class="card_icon">⚖️</div><div class="card_title">Ölçüm</div>
-        </button>
+        <button class="card action" data-tab="feed"><div class="card_icon">🍼</div><div class="card_title">Emzirme</div></button>
+        <button class="card action" data-tab="sleep"><div class="card_icon">🌙</div><div class="card_title">Uyku</div></button>
+        <button class="card action" data-tab="diaper"><div class="card_icon">🧷</div><div class="card_title">Bez</div></button>
+        <button class="card action" data-tab="growth"><div class="card_icon">⚖️</div><div class="card_title">Ölçüm</div></button>
       </div>
 
       <h2 class="section-title">Günün Özeti</h2>
@@ -53,10 +78,8 @@
 
       <!-- Beslenme -->
       <form id="feedForm" class="card form visible" onsubmit="return false;">
-        <label> Saat
-          <input type="datetime-local" id="feedTime" />
-        </label>
-        <label> Beslenme Tipi
+        <label>Saat <input type="datetime-local" id="feedTime" /></label>
+        <label>Beslenme Tipi
           <select id="feedType">
             <option value="breast">Emzirme</option>
             <option value="bottle">Biberon</option>
@@ -65,72 +88,44 @@
         <div class="row">
           <label style="flex:1">Taraf
             <select id="feedSide">
-              <option value="left">Sol</option>
-              <option value="right">Sağ</option>
-              <option value="both">İkisi</option>
+              <option value="left">Sol</option><option value="right">Sağ</option><option value="both">İkisi</option>
             </select>
           </label>
-          <label style="flex:1">Süre (dk)
-            <input type="number" id="feedDuration" min="1" value="15" />
-          </label>
+          <label style="flex:1">Süre (dk) <input type="number" id="feedDuration" min="1" value="15" /></label>
         </div>
-        <label>Miktar (ml) – biberon için
-          <input type="number" id="feedAmount" min="0" placeholder="120" />
-        </label>
-        <label>Not
-          <textarea id="feedNote" placeholder="Ek notlar…"></textarea>
-        </label>
+        <label>Miktar (ml) – biberon için <input type="number" id="feedAmount" min="0" placeholder="120" /></label>
+        <label>Not <textarea id="feedNote" placeholder="Ek notlar…"></textarea></label>
         <button type="button" class="primary" id="saveFeed">Kaydet</button>
       </form>
 
       <!-- Uyku -->
       <form id="sleepForm" class="card form" onsubmit="return false;">
-        <label>Başlangıç
-          <input type="datetime-local" id="sleepStart" />
-        </label>
-        <label>Bitiş
-          <input type="datetime-local" id="sleepEnd" />
-        </label>
-        <label>Not
-          <textarea id="sleepNote" placeholder="Ek notlar…"></textarea>
-        </label>
+        <label>Başlangıç <input type="datetime-local" id="sleepStart" /></label>
+        <label>Bitiş <input type="datetime-local" id="sleepEnd" /></label>
+        <label>Not <textarea id="sleepNote" placeholder="Ek notlar…"></textarea></label>
         <button type="button" class="primary" id="saveSleep">Kaydet</button>
       </form>
 
       <!-- Bez -->
       <form id="diaperForm" class="card form" onsubmit="return false;">
-        <label>Saat
-          <input type="datetime-local" id="diaperTime" />
-        </label>
+        <label>Saat <input type="datetime-local" id="diaperTime" /></label>
         <label>Tür
           <select id="diaperType">
-            <option value="wet">Islak</option>
-            <option value="dirty">Kakalı</option>
-            <option value="both">İkisi</option>
+            <option value="wet">Islak</option><option value="dirty">Kakalı</option><option value="both">İkisi</option>
           </select>
         </label>
-        <label>Not
-          <textarea id="diaperNote" placeholder="Ek notlar…"></textarea>
-        </label>
+        <label>Not <textarea id="diaperNote" placeholder="Ek notlar…"></textarea></label>
         <button type="button" class="primary" id="saveDiaper">Kaydet</button>
       </form>
 
       <!-- Ölçüm -->
       <form id="growthForm" class="card form" onsubmit="return false;">
-        <label>Tarih
-          <input type="date" id="growthDate" />
-        </label>
+        <label>Tarih <input type="date" id="growthDate" /></label>
         <div class="row">
-          <label style="flex:1">Kilo (gr)
-            <input type="number" id="weight" min="0" />
-          </label>
-          <label style="flex:1">Boy (cm)
-            <input type="number" id="height" min="0" />
-          </label>
+          <label style="flex:1">Kilo (gr) <input type="number" id="weight" min="0" /></label>
+          <label style="flex:1">Boy (cm) <input type="number" id="height" min="0" /></label>
         </div>
-        <label>Not
-          <textarea id="growthNote" placeholder="Ek notlar…"></textarea>
-        </label>
+        <label>Not <textarea id="growthNote" placeholder="Ek notlar…"></textarea></label>
         <button type="button" class="primary" id="saveGrowth">Kaydet</button>
       </form>
     </section>
@@ -181,6 +176,170 @@
     <button data-go="charts">Grafik</button>
   </nav>
 
-  <script src="./app.js?v=100"></script>
+  <script>
+  // ---- Basit yardımcılar
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+
+  // ---- Tarih metni
+  (function(){
+    const d = new Date();
+    const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+    $('#todayText').textContent =
+      d.toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'}) + ' • ' + days[d.getDay()];
+  })();
+
+  // ---- Depo (localStorage)
+  const KEY='bt_data_v1';
+  const state = load();
+  function load(){ try{return JSON.parse(localStorage.getItem(KEY)||'{"items":[]}');}catch{return{items:[]}} }
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+  // ---- Sayfa geçişi
+  function go(page){
+    $$('.page').forEach(p=>p.classList.remove('active'));
+    $('#'+page).classList.add('active');
+    $$('.bottomnav button').forEach(b=>b.classList.remove('active'));
+    $(.bottomnav [data-go="${page}"]).classList.add('active');
+    if(page==='home') renderHome();
+    if(page==='history') renderHistory();
+    if(page==='charts') renderCharts();
+  }
+  window.go=go;
+
+  // Alt menü tıklama
+  $('.bottomnav').addEventListener('click',e=>{
+    const b=e.target.closest('button[data-go]'); if(!b) return;
+    go(b.dataset.go);
+  });
+
+  // Ana sayfa 4 kart tıklama → Ekle sekmesinde ilgili form
+  $('#home').addEventListener('click', e=>{
+    const btn=e.target.closest('.action'); if(!btn) return;
+    go('add'); showForm(btn.dataset.tab||'feed');
+  });
+
+  // Ekle sekmesi tabları
+  function showForm(tab){
+    $$('#add .tab-btn').forEach(x=>x.classList.toggle('active', x.dataset.tab===tab));
+    $('#feedForm').classList.toggle('visible',tab==='feed');
+    $('#sleepForm').classList.toggle('visible',tab==='sleep');
+    $('#diaperForm').classList.toggle('visible',tab==='diaper');
+    $('#growthForm').classList.toggle('visible',tab==='growth');
+  }
+  $('#add .tabs').addEventListener('click',e=>{
+    const t=e.target.closest('.tab-btn'); if(!t) return; showForm(t.dataset.tab);
+  });
+
+  // Varsayılan input değerleri
+  const nowISO=()=>new Date().toISOString().slice(0,16);
+  $('#feedTime').value  = nowISO();
+  $('#sleepStart').value= nowISO();
+  $('#sleepEnd').value  = nowISO();
+  $('#diaperTime').value= nowISO();
+  $('#growthDate').value= new Date().toISOString().slice(0,10);
+
+  // Kayıt kaydet
+  $('#saveFeed').addEventListener('click',()=>{
+    state.items.push({
+      id:crypto.randomUUID(), type:'feed',
+      time:new Date($('#feedTime').value).toISOString(),
+      feedType:$('#feedType').value, side:$('#feedSide').value,
+      duration:Number($('#feedDuration').value||0),
+      amount:Number($('#feedAmount').value||0),
+      note:($('#feedNote').value||'').trim()
+    }); save(); go('home');
+  });
+  $('#saveSleep').addEventListener('click',()=>{
+    const s=new Date($('#sleepStart').value), e=new Date($('#sleepEnd').value);
+    const minutes=Math.max(0,Math.round((e-s)/60000));
+    state.items.push({id:crypto.randomUUID(),type:'sleep',start:s.toISOString(),end:e.toISOString(),minutes,note:($('#sleepNote').value||'').trim()});
+    save(); go('home');
+  });
+  $('#saveDiaper').addEventListener('click',()=>{
+    state.items.push({
+      id:crypto.randomUUID(), type:'diaper',
+      time:new Date($('#diaperTime').value).toISOString(),
+      diaperType:$('#diaperType').value,
+      note:($('#diaperNote').value||'').trim()
+    }); save(); go('home');
+  });
+  $('#saveGrowth').addEventListener('click',()=>{
+    state.items.push({
+      id:crypto.randomUUID(), type:'growth',
+      date:new Date($('#growthDate').value).toISOString(),
+      weight:Number($('#weight').value||0),
+      height:Number($('#height').value||0),
+      note:($('#growthNote').value||'').trim()
+    }); save(); go('home');
+  });
+
+  // Yardımcılar
+  const pad=n=>String(n).padStart(2,'0');
+  const fmt=ts=>{const t=new Date(ts);return ${pad(t.getHours())}:${pad(t.getMinutes())} • ${t.toLocaleDateString('tr-TR')};};
+  const timeOf=it=>fmt(it.time||it.start||it.date);
+  function labelOf(it){
+    if(it.type==='feed') return it.feedType==='bottle' ? Biberon ${it.amount||0} ml : Emzirme ${it.duration||0} dk;
+    if(it.type==='sleep') return Uyku ${it.minutes||0} dk;
+    if(it.type==='diaper'){const m={wet:'Islak',dirty:'Kakalı',both:'İkisi'};return Bez • ${m[it.diaperType]||''};}
+    if(it.type==='growth'){const w=it.weight?${it.weight} gr:'';const h=it.height?${it.height} cm:'';return Ölçüm ${w} ${h}.trim();}
+    return 'Kayıt';
+  }
+
+  // Ana sayfa render
+  function renderHome(){
+    const s=new Date(); s.setHours(0,0,0,0);
+    const e=new Date(); e.setHours(23,59,59,999);
+    const today=state.items.filter(x=>{const t=new Date(x.time||x.start||x.date);return t>=s&&t<=e;});
+    $('#sumFeed').textContent   = today.filter(x=>x.type==='feed').length;
+    $('#sumSleep').textContent  = today.filter(x=>x.type==='sleep').reduce((a,b)=>a+(b.minutes||0),0);
+    $('#sumDiaper').textContent = today.filter(x=>x.type==='diaper').length;
+    const lastFeed=[...state.items].reverse().find(x=>x.type==='feed');
+    $('#sinceFeed').textContent = lastFeed? (()=>{
+      const diffMin=Math.round((Date.now()-new Date(lastFeed.time))/60000);
+      const h=Math.floor(diffMin/60), m=diffMin%60; return ${h}s ${m}d;
+    })() : '—';
+    const list=$('#recentList'); list.innerHTML='';
+    [...state.items].slice(-6).reverse().forEach(it=>{
+      const div=document.createElement('div'); div.className='list-item';
+      div.innerHTML=<div><strong>${labelOf(it)}</strong><div class="muted">${timeOf(it)}</div></div><small>${it.note||''}</small>;
+      list.appendChild(div);
+    });
+  }
+
+  // Geçmiş render + filtre
+  function renderHistory(filter='all'){
+    const list=$('#historyList'); list.innerHTML='';
+    const items=filter==='all'?state.items:state.items.filter(x=>x.type===filter);
+    if(items.length===0){ list.innerHTML='<div class="muted">Kayıt yok</div>'; return; }
+    [...items].reverse().forEach(it=>{
+      const row=document.createElement('div'); row.className='list-item';
+      row.innerHTML=<div><strong>${labelOf(it)}</strong><div class="muted">${timeOf(it)}</div></div>;
+      list.appendChild(row);
+    });
+  }
+  $('#history').addEventListener('click',e=>{
+    const c=e.target.closest('.chip[data-filter]'); if(!c) return;
+    $$('#history .chip').forEach(x=>x.classList.remove('active')); c.classList.add('active');
+    renderHistory(c.dataset.filter);
+  });
+
+  // Grafik özet
+  function renderCharts(){
+    const d0=new Date(); d0.setHours(0,0,0,0);
+    const d7=new Date(d0); d7.setDate(d7.getDate()-6);
+    let f=0,s=0,d=0;
+    state.items.forEach(it=>{
+      const t=new Date(it.time||it.start||it.date);
+      if(t>=d7){ if(it.type==='feed')f++; if(it.type==='sleep')s+=(it.minutes||0)/60; if(it.type==='diaper')d++; }
+    });
+    $('#wFeed').textContent=(f/7).toFixed(1);
+    $('#wSleep').textContent=(s/7).toFixed(1)+'s';
+    $('#wDiaper').textContent=(d/7).toFixed(1);
+  }
+
+  // İlk yükleme
+  renderHome();
+  </script>
 </body>
 </html>
