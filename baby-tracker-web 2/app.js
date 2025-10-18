@@ -60,13 +60,30 @@ document.addEventListener('DOMContentLoaded', () => {
     showForm(b.dataset.tab);
   });
 
-  // Ana sayfadaki kartlardan Add sekmesine geçiş
-  document.addEventListener('click', (e)=>{
-    const card = e.target.closest('.action');
-    if(!card) return;
-    go('add');
-    showForm(card.dataset.tab || 'feed');
-  });
+  // ANA SAYFADAKİ 4 KART: TIKLAYINCA EKLE SEKMESİNİ AÇ
+document.getElementById('home').addEventListener('click', (e) => {
+  const btn = e.target.closest('.action');   // .action sınıflı kart mı?
+  if (!btn) return;
+
+  go('add');                                 // Ekle sekmesine geç
+  const tab = btn.dataset.tab || 'feed';
+
+  // Üst sekmeyi aktif et
+  document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+  const tabBtn = document.querySelector(.tab-btn[data-tab="${tab}"]);
+  if (tabBtn) tabBtn.classList.add('active');
+
+  // İlgili formu göster
+  function showForm(t){
+    document.getElementById('feedForm').classList.toggle('visible',   t==='feed');
+    document.getElementById('sleepForm').classList.toggle('visible',  t==='sleep');
+    document.getElementById('diaperForm').classList.toggle('visible', t==='diaper');
+    document.getElementById('growthForm').classList.toggle('visible', t==='growth');
+  }
+  showForm(tab);
+
+  console.log('Kart tıklandı →', tab); // teşhis için
+});
 
   // ==== Defaults for inputs ==================================================
   document.getElementById('feedTime').value = nowISO();
