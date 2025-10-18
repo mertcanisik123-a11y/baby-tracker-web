@@ -4,342 +4,461 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kıvanç–Selim Takip</title>
+
   <style>
-    :root{--bg:#f7f8fa;--card:#fff;--text:#1f2937;--muted:#6b7280;--primary:#3b82f6;--border:#e5e7eb;}
-    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    h2,h3{margin:16px 0} label{display:block;font-size:14px;margin:6px 0}
-    input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff;font:inherit}
-    .topbar{position:sticky;top:0;background:var(--bg);padding:12px 16px;border-bottom:1px solid var(--border);z-index:3}
-    .topbar_title{font-weight:700}.topbar_date{font-size:14px;color:var(--muted)}
+    :root{
+      --bg:#f7f8fa;
+      --card:#fff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --primary:#3b82f6;
+      --primary-weak:#e7f0ff;
+      --border:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    h1,h2,h3{margin:16px 0}
+    label{display:block;margin:6px 0;font-weight:600}
+    input,select,textarea,button{font:inherit}
+    input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff}
+    textarea{min-height:88px;resize:vertical}
+
+    .topbar{
+      position:sticky;top:0;background:var(--bg);padding:12px 16px 8px;border-bottom:1px solid var(--border);z-index:100;
+    }
+    .topbar__title{font-weight:800;font-size:18px}
+    .topbar__date{font-size:13px;color:var(--muted)}
     .container{max-width:980px;margin:0 auto;padding:12px 12px 100px}
-    .page{display:none}.page.active{display:block}.section-title{margin-top:18px}
+
+    .page{display:none}
+    .page_active{display:block}
+    .section-title{margin:16px 0 10px;font-weight:800}
+
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-    .grid3.tiny .kpi{font-size:24px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px}
-    .card_icon{font-size:22px;margin-bottom:6px}.card_title{font-weight:600}
-    .kpi{font-size:28px;font-weight:700}.muted{color:var(--muted)}
-    .placeholder{height:220px;border:1px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
-    .action{cursor:pointer;position:relative;z-index:5}
-    .list{display:flex;flex-direction:column;gap:8px}
-    .list-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px;display:flex;justify-content:space-between;gap:10px}
-    .list-item small{color:var(--muted)}
-    .row{display:flex;gap:12px}.wrap{flex-wrap:wrap}.gap{gap:8px}
-    .tabs{display:flex;gap:8px;margin-bottom:10px}
-    .tab-btn{padding:10px 12px;border:1px solid var(--border);background:#fff;border-radius:999px;cursor:pointer}
-    .tab-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-    .form{display:none}.form.visible{display:block}
-    .primary{background:var(--primary);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;margin-top:6px}
-    .chip{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#fff;cursor:pointer}
-    .chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-    .bottomnav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:8px;z-index:1000;pointer-events:auto}
-    .bottomnav button{background:#fff;border:none;padding:10px 6px;border-radius:10px;cursor:pointer}
-    .bottomnav button.active{color:#fff;background:var(--primary)}
-    /* Olası overlay/pointer sorunlarını tamamen kapat */
-    .page,.container,.grid2,.card,.card *{pointer-events:auto}
+    .card{
+      background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;
+      box-shadow:0 1px 0 rgba(0,0,0,.02);
+    }
+    .card.icon-left{display:flex;align-items:center;gap:10px}
+    .card_icon{font-size:22px;padding:10px;border:1px solid var(--border);border-radius:12px;background:#fff}
+
+    /* Hızlı kutular */
+    .quick{ text-align:left; font-weight:700; }
+    .quick.card{ display:flex; align-items:center; justify-content:flex-start; gap:.6rem; }
+
+    /* Alt menü */
+    nav.bottomnav{
+      position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);
+      display:flex;gap:8px;justify-content:space-around;padding:10px 8px;z-index:9999;
+    }
+    nav.bottomnav button{
+      all:unset; display:flex; flex-direction:column; align-items:center; gap:6px;
+      padding:8px 10px;border-radius:12px;cursor:pointer;color:#111;min-width:64px;text-align:center;
+    }
+    nav.bottomnav button span{font-size:12px;color:var(--muted)}
+    nav.bottomnav button.active{background:var(--primary-weak)}
+    nav.bottomnav button.active span{color:var(--primary);font-weight:700}
+
+    main{padding-bottom:92px}
+
+    /* Ekle sekmeleri */
+    .add-tabs{display:flex;gap:8px;overflow:auto}
+    .add-tabs button{
+      all:unset;background:#fff;border:1px solid var(--border);padding:10px 14px;border-radius:999px;cursor:pointer;
+      color:#111
+    }
+    .add-tabs button.active{background:var(--primary);border-color:var(--primary);color:#fff}
+    .add-pane.hide{display:none}
+
+    .pill-row{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{all:unset;border:1px solid var(--border);padding:8px 10px;border-radius:10px;cursor:pointer;background:#fff}
+    .pill.primary{background:var(--primary-weak);border-color:var(--primary);}
+
+    .muted{color:var(--muted)}
+    .kpi{font-weight:800;font-size:22px}
+    .row{display:flex;gap:12px}
+    .row > *{flex:1}
+
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px}
+
+    .chart-box{height:260px;border:1px dashed var(--border);border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--muted)}
   </style>
 </head>
 <body>
+
+  <!-- ÜST BAR -->
   <header class="topbar">
     <div class="topbar__title">Kıvanç–Selim Takip</div>
     <div class="topbar__date" id="todayText"></div>
   </header>
 
   <main class="container">
+
     <!-- ANA SAYFA -->
-    <section id="home" class="page active">
+    <section id="home" class="page page_active">
+      <div class="section-title">Bugün</div>
+
+      <!-- Hızlı erişim -->
       <div class="grid2">
-        <button class="card action" data-tab="feed"><div class="card_icon">🍼</div><div class="card_title">Emzirme</div></button>
-        <button class="card action" data-tab="sleep"><div class="card_icon">🌙</div><div class="card_title">Uyku</div></button>
-        <button class="card action" data-tab="diaper"><div class="card_icon">🧷</div><div class="card_title">Bez</div></button>
-        <button class="card action" data-tab="growth"><div class="card_icon">⚖️</div><div class="card_title">Ölçüm</div></button>
+        <button class="quick card" data-go="add" data-tab="feed">🍼 Emzirme</button>
+        <button class="quick card" data-go="add" data-tab="sleep">🌙 Uyku</button>
+        <button class="quick card" data-go="add" data-tab="diaper">👶 Bez</button>
+        <button class="quick card" data-go="add" data-tab="measure">🏷️ Ölçüm</button>
       </div>
 
-      <h2 class="section-title">Günün Özeti</h2>
+      <div class="section-title">Günün Özeti</div>
       <div class="grid2">
-        <div class="card"><div class="muted">Beslenme</div><div id="sumFeed" class="kpi">0</div></div>
-        <div class="card"><div class="muted">Uyku (dk)</div><div id="sumSleep" class="kpi">0</div></div>
-        <div class="card"><div class="muted">Bez</div><div id="sumDiaper" class="kpi">0</div></div>
-        <div class="card"><div class="muted">Son Beslenmeden Beri</div><div id="sinceFeed" class="kpi">—</div></div>
+        <div class="card"><div class="muted">Beslenme</div><div class="kpi" id="sumFeed">0</div></div>
+        <div class="card"><div class="muted">Uyku (dk)</div><div class="kpi" id="sumSleep">0</div></div>
+        <div class="card"><div class="muted">Bez</div><div class="kpi" id="sumDiaper">0</div></div>
+        <div class="card"><div class="muted">Ölçüm</div><div class="kpi" id="sumMeasure">0</div></div>
       </div>
 
-      <h2 class="section-title">Son Aktiviteler</h2>
-      <div id="recentList" class="list"></div>
+      <div class="section-title">Son Aktiviteler</div>
+      <div class="list" id="recentList"></div>
     </section>
 
     <!-- EKLE -->
     <section id="add" class="page">
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="feed">Beslenme</button>
-        <button class="tab-btn" data-tab="sleep">Uyku</button>
-        <button class="tab-btn" data-tab="diaper">Bez</button>
-        <button class="tab-btn" data-tab="growth">Ölçüm</button>
+      <div class="section-title">Yeni Kayıt</div>
+
+      <!-- Sekmeler -->
+      <div class="add-tabs" style="margin-bottom:12px">
+        <button data-tab="feed" class="active">🍼 Beslenme</button>
+        <button data-tab="sleep">🌙 Uyku</button>
+        <button data-tab="diaper">👶 Bez</button>
+        <button data-tab="measure">🏷️ Ölçüm</button>
       </div>
 
       <!-- Beslenme -->
-      <form id="feedForm" class="card form visible" onsubmit="return false;">
-        <label>Saat <input type="datetime-local" id="feedTime" /></label>
-        <label>Beslenme Tipi
-          <select id="feedType">
-            <option value="breast">Emzirme</option>
-            <option value="bottle">Biberon</option>
-          </select>
-        </label>
+      <div class="add-pane" data-pane="feed">
         <div class="row">
-          <label style="flex:1">Taraf
-            <select id="feedSide">
-              <option value="left">Sol</option><option value="right">Sağ</option><option value="both">İkisi</option>
+          <div>
+            <label>Beslenme Tipi</label>
+            <select id="feedType">
+              <option value="emzirme">Emzirme</option>
+              <option value="biberon">Biberon</option>
             </select>
-          </label>
-          <label style="flex:1">Süre (dk) <input type="number" id="feedDuration" min="1" value="15" /></label>
+          </div>
+          <div>
+            <label>Saat</label>
+            <input id="feedTime" type="time">
+          </div>
         </div>
-        <label>Miktar (ml) – biberon için <input type="number" id="feedAmount" min="0" placeholder="120" /></label>
-        <label>Not <textarea id="feedNote" placeholder="Ek notlar…"></textarea></label>
-        <button type="button" class="primary" id="saveFeed">Kaydet</button>
-      </form>
+
+        <div class="row" style="margin-top:8px">
+          <div>
+            <label>Taraf</label>
+            <select id="feedSide">
+              <option value="sol">Sol</option>
+              <option value="sağ">Sağ</option>
+              <option value="ikisi">İkisi</option>
+            </select>
+          </div>
+          <div>
+            <label>Süre (dakika)</label>
+            <input id="feedDuration" type="number" min="1" step="1" value="15">
+          </div>
+        </div>
+
+        <div style="margin-top:8px">
+          <label>Notlar</label>
+          <textarea id="feedNote" placeholder="Ek notlar..."></textarea>
+        </div>
+
+        <div class="pill-row" style="margin-top:10px">
+          <button class="pill primary" data-action="quickFeed" data-val="120">120 ml</button>
+          <button class="pill primary" data-action="quickFeed" data-val="150">150 ml</button>
+          <button class="pill primary" data-action="quickFeed" data-val="180">180 ml</button>
+          <span class="muted" style="align-self:center">Biberon/Mama için</span>
+        </div>
+
+        <div style="margin-top:12px">
+          <button class="pill" data-action="saveFeed">Kaydet</button>
+        </div>
+      </div>
 
       <!-- Uyku -->
-      <form id="sleepForm" class="card form" onsubmit="return false;">
-        <label>Başlangıç <input type="datetime-local" id="sleepStart" /></label>
-        <label>Bitiş <input type="datetime-local" id="sleepEnd" /></label>
-        <label>Not <textarea id="sleepNote" placeholder="Ek notlar…"></textarea></label>
-        <button type="button" class="primary" id="saveSleep">Kaydet</button>
-      </form>
+      <div class="add-pane hide" data-pane="sleep">
+        <div class="row">
+          <div><label>Başlangıç</label><input id="sleepStart" type="time"></div>
+          <div><label>Süre (dakika)</label><input id="sleepMin" type="number" min="1" value="30"></div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="pill" data-action="saveSleep">Kaydet</button>
+        </div>
+      </div>
 
       <!-- Bez -->
-      <form id="diaperForm" class="card form" onsubmit="return false;">
-        <label>Saat <input type="datetime-local" id="diaperTime" /></label>
-        <label>Tür
-          <select id="diaperType">
-            <option value="wet">Islak</option><option value="dirty">Kakalı</option><option value="both">İkisi</option>
-          </select>
-        </label>
-        <label>Not <textarea id="diaperNote" placeholder="Ek notlar…"></textarea></label>
-        <button type="button" class="primary" id="saveDiaper">Kaydet</button>
-      </form>
+      <div class="add-pane hide" data-pane="diaper">
+        <div class="row">
+          <div>
+            <label>Tür</label>
+            <select id="diaperType">
+              <option value="ıslak">Islak</option>
+              <option value="kaka">Kaka</option>
+              <option value="karışık">Karışık</option>
+            </select>
+          </div>
+          <div><label>Saat</label><input id="diaperTime" type="time"></div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="pill" data-action="saveDiaper">Kaydet</button>
+        </div>
+      </div>
 
       <!-- Ölçüm -->
-      <form id="growthForm" class="card form" onsubmit="return false;">
-        <label>Tarih <input type="date" id="growthDate" /></label>
+      <div class="add-pane hide" data-pane="measure">
         <div class="row">
-          <label style="flex:1">Kilo (gr) <input type="number" id="weight" min="0" /></label>
-          <label style="flex:1">Boy (cm) <input type="number" id="height" min="0" /></label>
+          <div><label>Kilo (gr)</label><input id="mWeight" type="number" step="1"></div>
+          <div><label>Boy (cm)</label><input id="mHeight" type="number" step="0.1"></div>
         </div>
-        <label>Not <textarea id="growthNote" placeholder="Ek notlar…"></textarea></label>
-        <button type="button" class="primary" id="saveGrowth">Kaydet</button>
-      </form>
+        <div class="row" style="margin-top:8px">
+          <div><label>Baş Çevresi (cm)</label><input id="mHead" type="number" step="0.1"></div>
+          <div><label>Ateş (°C)</label><input id="mTemp" type="number" step="0.1"></div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="pill" data-action="saveMeasure">Kaydet</button>
+        </div>
+      </div>
     </section>
 
     <!-- GEÇMİŞ -->
     <section id="history" class="page">
-      <div class="row wrap gap">
-        <button class="chip active" data-filter="all">Tümü</button>
-        <button class="chip" data-filter="feed">Beslenme</button>
-        <button class="chip" data-filter="sleep">Uyku</button>
-        <button class="chip" data-filter="diaper">Bez</button>
-        <button class="chip" data-filter="growth">Ölçüm</button>
-      </div>
-      <div id="historyList" class="list"></div>
+      <div class="section-title">Geçmiş</div>
+      <div class="list" id="historyList"></div>
     </section>
 
     <!-- REHBER -->
     <section id="guide" class="page">
+      <div class="section-title">Beslenme Rehberi</div>
       <div class="card">
-        <h3>Beslenme Rehberi</h3>
-        <p class="muted">1–2 Ay’da tipik: Biberon 120–150 ml, Emzirme 7–9 kez/gün. (Doktor önerisi önceliklidir.)</p>
+        <div class="row">
+          <div><label>Bebeğinizin Yaşı (Ay)</label><input id="ageMonth" type="number" min="0" value="1"></div>
+        </div>
+        <div style="margin-top:10px" id="guideResult" class="muted">
+          1–2 Ay: Biberon 120–150 ml / Emzirme günde 7–9 kez (genel öneri).
+        </div>
       </div>
     </section>
 
-    <!-- GRAFİK (özet) -->
+    <!-- GRAFİKLER -->
     <section id="charts" class="page">
-      <div class="card">
-        <h3>Son 7 Gün Özeti</h3>
-        <div class="grid3 tiny">
-          <div><div class="muted">Günlük Ort. Beslenme</div><div id="wFeed" class="kpi">0.0</div></div>
-          <div><div class="muted">Günlük Ort. Uyku</div><div id="wSleep" class="kpi">0.0s</div></div>
-          <div><div class="muted">Günlük Ort. Bez</div><div id="wDiaper" class="kpi">0.0</div></div>
+      <div class="section-title">Grafikler</div>
+      <div class="grid2">
+        <div class="card">
+          <div class="muted">Son 7 Gün Özeti</div>
+          <div class="row" style="margin-top:8px">
+            <div class="kpi" id="avgFeed">0</div>
+            <div class="kpi" id="avgSleep">0 dk</div>
+            <div class="kpi" id="avgDiaper">0</div>
+          </div>
         </div>
-      </div>
-      <div class="card">
-        <h3>Beslenme Grafiği</h3>
-        <div class="placeholder">Grafik alanı (ileride eklenecek)</div>
+        <div class="card chart-box">Grafik alanı (basit sürüm)</div>
       </div>
     </section>
+
   </main>
 
   <!-- ALT MENÜ -->
   <nav class="bottomnav">
-    <button data-go="home" class="active">Ana Sayfa</button>
-    <button data-go="add">Ekle</button>
-    <button data-go="history">Geçmiş</button>
-    <button data-go="guide">Rehber</button>
-    <button data-go="charts">Grafik</button>
+    <button class="active" data-go="home"><div>🏠</div><span>Ana Sayfa</span></button>
+    <button data-go="add"><div>➕</div><span>Ekle</span></button>
+    <button data-go="history"><div>🕘</div><span>Geçmiş</span></button>
+    <button data-go="guide"><div>📘</div><span>Rehber</span></button>
+    <button data-go="charts"><div>📈</div><span>Grafik</span></button>
   </nav>
 
   <script>
-  // ---- Basit yardımcılar
-  const $ = s => document.querySelector(s);
-  const $$ = s => Array.from(document.querySelectorAll(s));
+    // -------- Tarih ----------
+    (function(){
+      const d = new Date();
+      const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+      document.getElementById('todayText').textContent =
+        d.toLocaleDateString('tr-TR', { day:'2-digit', month:'long', year:'numeric'}) +
+        ' • ' + days[d.getDay()];
+    })();
 
-  // ---- Tarih metni
-  (function(){
-    const d = new Date();
-    const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
-    $('#todayText').textContent =
-      d.toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'}) + ' • ' + days[d.getDay()];
-  })();
+    // ------- Basit hafıza -------
+    const LS_KEY = 'bt_data_v1';
+    function load(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ return {}; } }
+    function save(data){ localStorage.setItem(LS_KEY, JSON.stringify(data)); }
 
-  // ---- Depo (localStorage)
-  const KEY='bt_data_v1';
-  const state = load();
-  function load(){ try{return JSON.parse(localStorage.getItem(KEY)||'{"items":[]}');}catch{return{items:[]}} }
-  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+    // ------- Event Delegation (tek noktadan tıklama) -------
+    document.addEventListener('click', function(e){
+      const el = e.target.closest('[data-go],[data-tab],[data-action]');
+      if(!el) return;
 
-  // ---- Sayfa geçişi
-  function go(page){
-    $$('.page').forEach(p=>p.classList.remove('active'));
-    $('#'+page).classList.add('active');
-    $$('.bottomnav button').forEach(b=>b.classList.remove('active'));
-    $(.bottomnav [data-go="${page}"]).classList.add('active');
-    if(page==='home') renderHome();
-    if(page==='history') renderHistory();
-    if(page==='charts') renderCharts();
-  }
-  window.go=go;
-
-  // Alt menü tıklama
-  $('.bottomnav').addEventListener('click',e=>{
-    const b=e.target.closest('button[data-go]'); if(!b) return;
-    go(b.dataset.go);
-  });
-
-  // Ana sayfa 4 kart tıklama → Ekle sekmesinde ilgili form
-  $('#home').addEventListener('click', e=>{
-    const btn=e.target.closest('.action'); if(!btn) return;
-    go('add'); showForm(btn.dataset.tab||'feed');
-  });
-
-  // Ekle sekmesi tabları
-  function showForm(tab){
-    $$('#add .tab-btn').forEach(x=>x.classList.toggle('active', x.dataset.tab===tab));
-    $('#feedForm').classList.toggle('visible',tab==='feed');
-    $('#sleepForm').classList.toggle('visible',tab==='sleep');
-    $('#diaperForm').classList.toggle('visible',tab==='diaper');
-    $('#growthForm').classList.toggle('visible',tab==='growth');
-  }
-  $('#add .tabs').addEventListener('click',e=>{
-    const t=e.target.closest('.tab-btn'); if(!t) return; showForm(t.dataset.tab);
-  });
-
-  // Varsayılan input değerleri
-  const nowISO=()=>new Date().toISOString().slice(0,16);
-  $('#feedTime').value  = nowISO();
-  $('#sleepStart').value= nowISO();
-  $('#sleepEnd').value  = nowISO();
-  $('#diaperTime').value= nowISO();
-  $('#growthDate').value= new Date().toISOString().slice(0,10);
-
-  // Kayıt kaydet
-  $('#saveFeed').addEventListener('click',()=>{
-    state.items.push({
-      id:crypto.randomUUID(), type:'feed',
-      time:new Date($('#feedTime').value).toISOString(),
-      feedType:$('#feedType').value, side:$('#feedSide').value,
-      duration:Number($('#feedDuration').value||0),
-      amount:Number($('#feedAmount').value||0),
-      note:($('#feedNote').value||'').trim()
-    }); save(); go('home');
-  });
-  $('#saveSleep').addEventListener('click',()=>{
-    const s=new Date($('#sleepStart').value), e=new Date($('#sleepEnd').value);
-    const minutes=Math.max(0,Math.round((e-s)/60000));
-    state.items.push({id:crypto.randomUUID(),type:'sleep',start:s.toISOString(),end:e.toISOString(),minutes,note:($('#sleepNote').value||'').trim()});
-    save(); go('home');
-  });
-  $('#saveDiaper').addEventListener('click',()=>{
-    state.items.push({
-      id:crypto.randomUUID(), type:'diaper',
-      time:new Date($('#diaperTime').value).toISOString(),
-      diaperType:$('#diaperType').value,
-      note:($('#diaperNote').value||'').trim()
-    }); save(); go('home');
-  });
-  $('#saveGrowth').addEventListener('click',()=>{
-    state.items.push({
-      id:crypto.randomUUID(), type:'growth',
-      date:new Date($('#growthDate').value).toISOString(),
-      weight:Number($('#weight').value||0),
-      height:Number($('#height').value||0),
-      note:($('#growthNote').value||'').trim()
-    }); save(); go('home');
-  });
-
-  // Yardımcılar
-  const pad=n=>String(n).padStart(2,'0');
-  const fmt=ts=>{const t=new Date(ts);return ${pad(t.getHours())}:${pad(t.getMinutes())} • ${t.toLocaleDateString('tr-TR')};};
-  const timeOf=it=>fmt(it.time||it.start||it.date);
-  function labelOf(it){
-    if(it.type==='feed') return it.feedType==='bottle' ? Biberon ${it.amount||0} ml : Emzirme ${it.duration||0} dk;
-    if(it.type==='sleep') return Uyku ${it.minutes||0} dk;
-    if(it.type==='diaper'){const m={wet:'Islak',dirty:'Kakalı',both:'İkisi'};return Bez • ${m[it.diaperType]||''};}
-    if(it.type==='growth'){const w=it.weight?${it.weight} gr:'';const h=it.height?${it.height} cm:'';return Ölçüm ${w} ${h}.trim();}
-    return 'Kayıt';
-  }
-
-  // Ana sayfa render
-  function renderHome(){
-    const s=new Date(); s.setHours(0,0,0,0);
-    const e=new Date(); e.setHours(23,59,59,999);
-    const today=state.items.filter(x=>{const t=new Date(x.time||x.start||x.date);return t>=s&&t<=e;});
-    $('#sumFeed').textContent   = today.filter(x=>x.type==='feed').length;
-    $('#sumSleep').textContent  = today.filter(x=>x.type==='sleep').reduce((a,b)=>a+(b.minutes||0),0);
-    $('#sumDiaper').textContent = today.filter(x=>x.type==='diaper').length;
-    const lastFeed=[...state.items].reverse().find(x=>x.type==='feed');
-    $('#sinceFeed').textContent = lastFeed? (()=>{
-      const diffMin=Math.round((Date.now()-new Date(lastFeed.time))/60000);
-      const h=Math.floor(diffMin/60), m=diffMin%60; return ${h}s ${m}d;
-    })() : '—';
-    const list=$('#recentList'); list.innerHTML='';
-    [...state.items].slice(-6).reverse().forEach(it=>{
-      const div=document.createElement('div'); div.className='list-item';
-      div.innerHTML=<div><strong>${labelOf(it)}</strong><div class="muted">${timeOf(it)}</div></div><small>${it.note||''}</small>;
-      list.appendChild(div);
+      if(el.dataset.go){ e.preventDefault(); go(el.dataset.go); }
+      if(el.dataset.tab){ e.preventDefault(); setAddTab(el.dataset.tab); }
+      if(el.dataset.action){ e.preventDefault(); runAction(el.dataset.action, el); }
     });
-  }
 
-  // Geçmiş render + filtre
-  function renderHistory(filter='all'){
-    const list=$('#historyList'); list.innerHTML='';
-    const items=filter==='all'?state.items:state.items.filter(x=>x.type===filter);
-    if(items.length===0){ list.innerHTML='<div class="muted">Kayıt yok</div>'; return; }
-    [...items].reverse().forEach(it=>{
-      const row=document.createElement('div'); row.className='list-item';
-      row.innerHTML=<div><strong>${labelOf(it)}</strong><div class="muted">${timeOf(it)}</div></div>;
-      list.appendChild(row);
+    function go(page){
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('page_active'));
+      const target = document.getElementById(page);
+      if(target) target.classList.add('page_active');
+
+      document.querySelectorAll('nav.bottomnav [data-go]').forEach(b=>b.classList.remove('active'));
+      const navBtn = document.querySelector('nav.bottomnav [data-go="'+page+'"]');
+      if(navBtn) navBtn.classList.add('active');
+
+      // Ekle'ye gelince varsayılan sekme
+      if(page==='add' && !document.querySelector('.add-tabs .active')) setAddTab('feed');
+
+      // Her geçişte özetleri tazele
+      if(page==='home') renderHome();
+      if(page==='history') renderHistory();
+      if(page==='charts') renderCharts();
+    }
+
+    function setAddTab(tab){
+      document.querySelectorAll('.add-tabs [data-tab]').forEach(t => t.classList.remove('active'));
+      const btn = document.querySelector('.add-tabs [data-tab="'+tab+'"]');
+      if(btn) btn.classList.add('active');
+
+      document.querySelectorAll('.add-pane').forEach(p => p.classList.add('hide'));
+      const pane = document.querySelector('.add-pane[data-pane="'+tab+'"]');
+      if(pane) pane.classList.remove('hide');
+    }
+
+    // ------- Kayıt işlemleri -------
+    function runAction(action, el){
+      const data = load();
+      data.feed = data.feed || [];
+      data.sleep = data.sleep || [];
+      data.diaper = data.diaper || [];
+      data.measure = data.measure || [];
+
+      if(action==='quickFeed'){
+        const ml = parseInt(el.dataset.val||'0',10);
+        data.feed.push({t: nowHM(), type:'biberon', side:'-', min:0, ml, note:'Hızlı'});
+        save(data);
+        alert('Beslenme kaydedildi: '+ml+' ml');
+        renderHome();
+        return;
+      }
+
+      if(action==='saveFeed'){
+        const type = document.getElementById('feedType').value;
+        const time = document.getElementById('feedTime').value || nowHM();
+        const side = document.getElementById('feedSide').value;
+        const min = parseInt(document.getElementById('feedDuration').value||'0',10);
+        const note = document.getElementById('feedNote').value.trim();
+        data.feed.push({t:time, type, side, min, ml:0, note});
+        save(data);
+        alert('Beslenme kaydedildi');
+        clearAdd();
+        renderHome();
+        return;
+      }
+
+      if(action==='saveSleep'){
+        const start = document.getElementById('sleepStart').value || nowHM();
+        const min   = parseInt(document.getElementById('sleepMin').value||'0',10);
+        data.sleep.push({t:start, min});
+        save(data);
+        alert('Uyku kaydedildi');
+        clearAdd();
+        renderHome();
+        return;
+      }
+
+      if(action==='saveDiaper'){
+        const type = document.getElementById('diaperType').value;
+        const time = document.getElementById('diaperTime').value || nowHM();
+        data.diaper.push({t:time, type});
+        save(data);
+        alert('Bez kaydedildi');
+        clearAdd();
+        renderHome();
+        return;
+      }
+
+      if(action==='saveMeasure'){
+        const w = +document.getElementById('mWeight').value || null;
+        const h = +document.getElementById('mHeight').value || null;
+        const head = +document.getElementById('mHead').value || null;
+        const temp = +document.getElementById('mTemp').value || null;
+        data.measure.push({t:nowHM(), w,h,head,temp});
+        save(data);
+        alert('Ölçüm kaydedildi');
+        clearAdd();
+        renderHome();
+        return;
+      }
+    }
+
+    function nowHM(){
+      const d=new Date();
+      return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    }
+
+    function clearAdd(){
+      ['feedNote'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+    }
+
+    // ------- Ekranlar -------
+    function renderHome(){
+      const d = load();
+      const sumFeed   = (d.feed||[]).length;
+      const sumSleep  = (d.sleep||[]).reduce((a,b)=>a+(+b.min||0),0);
+      const sumDiaper = (d.diaper||[]).length;
+      const sumMeasure= (d.measure||[]).length;
+
+      document.getElementById('sumFeed').textContent = sumFeed;
+      document.getElementById('sumSleep').textContent = sumSleep;
+      document.getElementById('sumDiaper').textContent = sumDiaper;
+      document.getElementById('sumMeasure').textContent = sumMeasure;
+
+      const recent = [
+        ...(d.feed||[]).map(x=>({t:x.t, txt:🍼 ${x.type} ${x.ml?x.ml+' ml':''} ${x.min?x.min+' dk':''}})),
+        ...(d.sleep||[]).map(x=>({t:x.t, txt:🌙 Uyku ${x.min} dk})),
+        ...(d.diaper||[]).map(x=>({t:x.t, txt:👶 Bez ${x.type}})),
+        ...(d.measure||[]).map(x=>({t:x.t, txt:🏷️ Ölçüm}))
+      ].sort((a,b)=>a.t<b.t?1:-1).slice(0,5);
+
+      const box = document.getElementById('recentList');
+      box.innerHTML = recent.map(r=><div class="item"><b>${r.t}</b> — ${r.txt}</div>).join('') || <div class="muted">Henüz kayıt yok.</div>;
+    }
+
+    function renderHistory(){
+      const d = load();
+      const all = [
+        ...(d.feed||[]).map(x=>({t:x.t, g:'Beslenme', d:${x.type} ${x.side||''} ${x.ml?x.ml+' ml':''} ${x.min?x.min+' dk':''}})),
+        ...(d.sleep||[]).map(x=>({t:x.t, g:'Uyku', d:${x.min} dk})),
+        ...(d.diaper||[]).map(x=>({t:x.t, g:'Bez', d:${x.type}})),
+        ...(d.measure||[]).map(x=>({t:x.t, g:'Ölçüm', d:Kayıt}))
+      ].sort((a,b)=> (a.t<b.t?1:-1));
+
+      const box = document.getElementById('historyList');
+      box.innerHTML = all.map(r=><div class="item"><b>${r.t}</b> — <b>${r.g}</b> • ${r.d}</div>).join('') || <div class="muted">Kayıt bulunamadı.</div>;
+    }
+
+    function renderCharts(){
+      const d = load();
+      const days = 7;
+      const avgFeed  = ((d.feed||[]).length / days).toFixed(1);
+      const avgSleep = Math.round(((d.sleep||[]).reduce((a,b)=>a+(+b.min||0),0)) / days);
+      const avgDiaper= ((d.diaper||[]).length / days).toFixed(1);
+      document.getElementById('avgFeed').textContent  = avgFeed;
+      document.getElementById('avgSleep').textContent = avgSleep+' dk';
+      document.getElementById('avgDiaper').textContent= avgDiaper;
+    }
+
+    // Rehber basit örnek
+    document.getElementById('ageMonth').addEventListener('input', function(){
+      const m = +this.value||1;
+      let info = '';
+      if(m<=2) info = ${m===0?'0–1':'1–2'} Ay: Biberon 120–150 ml / Emzirme günde 7–9 kez.;
+      else if(m<=6) info = 2–6 Ay: Biberon 150–200 ml / Emzirme günde 6–8 kez.;
+      else info = 6+ Ay: Ek gıdaya geçiş – hekim önerisini takip edin.;
+      document.getElementById('guideResult').textContent = info;
     });
-  }
-  $('#history').addEventListener('click',e=>{
-    const c=e.target.closest('.chip[data-filter]'); if(!c) return;
-    $$('#history .chip').forEach(x=>x.classList.remove('active')); c.classList.add('active');
-    renderHistory(c.dataset.filter);
-  });
 
-  // Grafik özet
-  function renderCharts(){
-    const d0=new Date(); d0.setHours(0,0,0,0);
-    const d7=new Date(d0); d7.setDate(d7.getDate()-6);
-    let f=0,s=0,d=0;
-    state.items.forEach(it=>{
-      const t=new Date(it.time||it.start||it.date);
-      if(t>=d7){ if(it.type==='feed')f++; if(it.type==='sleep')s+=(it.minutes||0)/60; if(it.type==='diaper')d++; }
-    });
-    $('#wFeed').textContent=(f/7).toFixed(1);
-    $('#wSleep').textContent=(s/7).toFixed(1)+'s';
-    $('#wDiaper').textContent=(d/7).toFixed(1);
-  }
-
-  // İlk yükleme
-  renderHome();
+    // İlk açılış
+    renderHome();
   </script>
 </body>
 </html>
