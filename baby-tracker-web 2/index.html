@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bebek Takip Paneli</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <h1>👶 Bebek Takip Paneli</h1>
+    <nav>
+      <button class="tab-btn" data-tab="feed">Beslenme</button>
+      <button class="tab-btn" data-tab="diaper">Alt Değişim</button>
+      <button class="tab-btn" data-tab="sleep">Uyku</button>
+      <button class="tab-btn" data-tab="growth">Büyüme</button>
+      <button class="tab-btn" data-tab="summary">Özet</button>
+      <button id="exportJson">JSON Dışa Aktar</button>
+      <input type="file" id="importJson" style="display:none" accept="application/json">
+      <button id="importBtn">JSON İçe Aktar</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="feed" class="tab active">
+      <h2>🍼 Beslenme</h2>
+      <form id="feedForm">
+        <label>Tarih <input type="date" id="feedDate" required></label>
+        <label>Saat <input type="time" id="feedTime" required></label>
+        <label>Tür
+          <select id="feedType">
+            <option>Anne Sütü</option>
+            <option>Biberon</option>
+            <option>Mama</option>
+            <option>Karışık</option>
+          </select>
+        </label>
+        <label>Taraf
+          <select id="feedSide">
+            <option>-</option>
+            <option>Sol</option>
+            <option>Sağ</option>
+            <option>Her ikisi</option>
+          </select>
+        </label>
+        <label>Süre (dk) <input type="number" id="feedDuration" min="0" placeholder="Anne sütü için"></label>
+        <label>Miktar (ml) <input type="number" id="feedAmount" min="0" placeholder="Biberon/Mama için"></label>
+        <label>Not <input type="text" id="feedNote" placeholder="İsteğe bağlı"></label>
+        <button type="submit">Kaydet</button>
+      </form>
+      <table id="feedTable">
+        <thead><tr><th>Tarih</th><th>Saat</th><th>Tür</th><th>Taraf</th><th>Süre</th><th>Miktar</th><th>Not</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="diaper" class="tab">
+      <h2>🧷 Alt Değişim</h2>
+      <form id="diaperForm">
+        <label>Tarih <input type="date" id="diaperDate" required></label>
+        <label>Saat <input type="time" id="diaperTime" required></label>
+        <label>Tür
+          <select id="diaperType">
+            <option>Çiş</option>
+            <option>Kaka</option>
+            <option>Karışık</option>
+            <option>Sızıntı</option>
+          </select>
+        </label>
+        <label>Renk/Kıvam <input type="text" id="diaperColor" placeholder="(opsiyonel)"></label>
+        <label>Not <input type="text" id="diaperNote" placeholder="(opsiyonel)"></label>
+        <button type="submit">Kaydet</button>
+      </form>
+      <table id="diaperTable">
+        <thead><tr><th>Tarih</th><th>Saat</th><th>Tür</th><th>Renk/Kıvam</th><th>Not</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="sleep" class="tab">
+      <h2>😴 Uyku</h2>
+      <form id="sleepForm">
+        <label>Tarih <input type="date" id="sleepDate" required></label>
+        <label>Başlangıç <input type="time" id="sleepStart" required></label>
+        <label>Bitiş <input type="time" id="sleepEnd" required></label>
+        <label>Not <input type="text" id="sleepNote" placeholder="(opsiyonel)"></label>
+        <button type="submit">Kaydet</button>
+      </form>
+      <table id="sleepTable">
+        <thead><tr><th>Tarih</th><th>Başlangıç</th><th>Bitiş</th><th>Süre (dk)</th><th>Not</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="growth" class="tab">
+      <h2>📈 Büyüme</h2>
+      <form id="growthForm">
+        <label>Tarih <input type="date" id="growthDate" required></label>
+        <label>Kilo (gr) <input type="number" id="growthWeight" required min="0"></label>
+        <label>Boy (cm) <input type="number" step="0.1" id="growthHeight"></label>
+        <label>Baş Çevresi (cm) <input type="number" step="0.1" id="growthHead"></label>
+        <label>Ateş (°C) <input type="number" step="0.1" id="growthTemp"></label>
+        <label>Not <input type="text" id="growthNote"></label>
+        <button type="submit">Kaydet</button>
+      </form>
+      <table id="growthTable">
+        <thead><tr><th>Tarih</th><th>Kilo</th><th>Boy</th><th>Baş Çevresi</th><th>Ateş</th><th>Not</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="summary" class="tab">
+      <h2>📊 Günlük Özet</h2>
+      <div id="summaryContent"></div>
+      <button id="exportCsv">Bugünün CSV’sini İndir</button>
+    </section>
+  </main>
+
+  <footer>
+    <small>© Bebek Takip • Yerel olarak saklanır (localStorage). İsterseniz Sheets/Supabase’e bağlamak için README’ye bakın.</small>
+  </footer>
+
+  <script src="/config.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
