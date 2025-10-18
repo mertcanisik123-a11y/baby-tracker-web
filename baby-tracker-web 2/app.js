@@ -1,6 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
   console.log('App loaded ✅');
 
+  // Kartlara tıklamayı garantile
+const home = document.getElementById('home');
+home.addEventListener('click', (e) => {
+  const btn = e.target.closest('.action');
+  if (!btn) return;
+  console.log('KART TIKLANDI →', btn.dataset.tab);
+  go('add');
+  const tab = btn.dataset.tab || 'feed';
+
+  document.querySelectorAll('.tab-btn').forEach(x => x.classList.toggle('active', x.dataset.tab===tab));
+  document.getElementById('feedForm').classList.toggle('visible',   tab==='feed');
+  document.getElementById('sleepForm').classList.toggle('visible',  tab==='sleep');
+  document.getElementById('diaperForm').classList.toggle('visible', tab==='diaper');
+  document.getElementById('growthForm').classList.toggle('visible', tab==='growth');
+});
+  
   // ==== State & Helpers ======================================================
   const LS_KEY = 'bt_data_v1';
   const nowISO = () => new Date().toISOString().slice(0,16); // yyyy-MM-ddTHH:mm
