@@ -1,1 +1,5 @@
-window.BABY_TRACKER_CONFIG = { remoteEnabled: false, endpointUrl: "", authToken: "" };
+window.BABY_TRACKER_CONFIG = {
+  remoteEnabled: false,
+  endpointUrl: "",
+  authToken: ""
+};
