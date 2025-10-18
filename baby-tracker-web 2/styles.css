@@ -62,3 +62,11 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);bor
 }
 .bottomnav button{background:#fff;border:none;padding:10px 6px;border-radius:10px;cursor:pointer}
 .bottomnav button.active{color:#fff;background:var(--primary)}
+
+/* Kartlar tıklanabilir olsun */
+.action { cursor: pointer; position: relative; z-index: 2; }
+.grid2 button { pointer-events: auto; }
+
+/* Alt menü sayfayı kapatmasın */
+.bottomnav { z-index: 1000; pointer-events: auto; }
+.container { padding-bottom: 84px; }
