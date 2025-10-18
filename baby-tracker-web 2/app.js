@@ -1,175 +1,129 @@
 (function(){
-  const cfg = window.BABY_TRACKER_CONFIG || {};
-  const $ = (sel) => document.querySelector(sel);
-  const $$ = (sel) => document.querySelectorAll(sel);
-  const todayStr = () => new Date().toISOString().slice(0,10);
-  const pad = (n) => String(n).padStart(2,"0");
-  const nowTime = () => { const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  const $  = (s)=>document.querySelector(s);
+  const $$ = (s)=>document.querySelectorAll(s);
+  const todayStr = ()=> new Date().toISOString().slice(0,10);
+  const pad2 = (n)=> String(n).padStart(2,'0');
+  const nowTime = ()=> {const d=new Date();return ${pad2(d.getHours())}:${pad2(d.getMinutes())}}
 
+  // Local data
   const state = JSON.parse(localStorage.getItem("baby-tracker-data")||'{"feed":[],"diaper":[],"sleep":[],"growth":[]}');
-  const save = () => localStorage.setItem("baby-tracker-data", JSON.stringify(state));
+  const save  = ()=> localStorage.setItem("baby-tracker-data", JSON.stringify(state));
 
-  $$(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
-    $$(".tab").forEach(s => s.classList.remove("active"));
-    $("#"+btn.dataset.tab).classList.add("active");
-  }));
+  // NAV: tek sayfa açık olsun
+  function go(id){
+    $$(".page").forEach(p=>p.classList.remove("active"));
+    $("#"+id).classList.add("active");
+    $$(".bottomnav button").forEach(b=>b.classList.toggle("active", b.dataset.go===id));
+  }
+  $$(".bottomnav button").forEach(b=> b.onclick=()=> go(b.dataset.go));
+  go("home"); // açılışta sadece ana sayfa
 
-  $("#feedDate").value = todayStr();
-  $("#feedTime").value = nowTime();
-  $("#diaperDate").value = todayStr();
+  // Tabs (Ekle sayfası)
+  $$(".tab-btn").forEach(b=>b.onclick=()=>{
+    $$(".tab-btn").forEach(x=>x.classList.remove("active")); b.classList.add("active");
+    const t=b.dataset.tab;
+    $("#feedForm").style.display   = (t==="feed")?"block":"none";
+    $("#sleepForm").style.display  = (t==="sleep")?"block":"none";
+    $("#diaperForm").style.display = (t==="diaper")?"block":"none";
+    $("#growthForm").style.display = (t==="growth")?"block":"none";
+  });
+  // varsayılan
+  $("#sleepForm").style.display="none"; $("#diaperForm").style.display="none"; $("#growthForm").style.display="none";
+
+  // Varsayılan tarih/saat
+  ["#feedDate","#diaperDate","#sleepDate","#growthDate"].forEach(s=>$(s).value=todayStr());
+  $("#feedTime").value   = nowTime();
   $("#diaperTime").value = nowTime();
-  $("#sleepDate").value = todayStr();
   $("#sleepStart").value = nowTime();
-  $("#sleepEnd").value = nowTime();
-  $("#growthDate").value = todayStr();
+  $("#sleepEnd").value   = nowTime();
+  $("#todayText") && ($("#todayText").textContent = new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}));
 
-  function renderTable(id, rows, cols){
-    const tbody = document.querySelector(`#${id} tbody`);
-    tbody.innerHTML = "";
-    rows.forEach((row, idx)=>{
-      const tr = document.createElement("tr");
-      cols.forEach(c=>{
-        const td = document.createElement("td");
-        td.textContent = row[c] ?? "";
-        tr.appendChild(td);
-      });
-      const del = document.createElement("td");
-      const btn = document.createElement("button");
-      btn.textContent = "Sil";
-      btn.onclick = ()=>{ rows.splice(idx,1); save(); renderAll(); };
-      del.appendChild(btn);
-      tr.appendChild(del);
-      tbody.appendChild(tr);
+  // Hızlı doldurma çipleri
+  $$(".chip").forEach(chip=>{
+    chip.onclick=()=>{
+      const [sel,val]=chip.dataset.fill.split(":");
+      const el=document.querySelector(sel);
+      if(el){ el.value=val; el.dispatchEvent(new Event("input")); }
+    }
+  });
+
+  // FORMLAR
+  $("#feedForm")?.addEventListener("submit",(e)=>{
+    e.preventDefault();
+    state.feed.unshift({
+      date:$("#feedDate").value, time:$("#feedTime").value,
+      type:$("#feedType").value, side:$("#feedSide").value,
+      duration:$("#feedDuration").value? +$("#feedDuration").value : "",
+      amount:$("#feedAmount").value? +$("#feedAmount").value : "",
+      note:$("#feedNote").value||""
     });
-  }
-
-  function renderAll(){
-    renderTable("feed", state.feed, ["date","time","type","side","duration","amount","note"]);
-    renderTable("diaper", state.diaper, ["date","time","dtype","color","note"]);
-    renderTable("sleep", state.sleep, ["date","start","end","minutes","note"]);
-    renderTable("growth", state.growth, ["date","weight","height","head","temp","note"]);
-    renderSummary();
-  }
-
-  $("#feedForm").addEventListener("submit", async (e)=>{
-    e.preventDefault();
-    const item = {
-      date: $("#feedDate").value,
-      time: $("#feedTime").value,
-      type: $("#feedType").value,
-      side: $("#feedSide").value,
-      duration: $("#feedDuration").value ? Number($("#feedDuration").value) : "",
-      amount: $("#feedAmount").value ? Number($("#feedAmount").value) : "",
-      note: $("#feedNote").value || ""
-    };
-    state.feed.unshift(item); save(); renderAll();
-    if(cfg.remoteEnabled && cfg.endpointUrl){ try{ await remoteSend("feed", item);}catch(e){console.warn(e);} }
-    e.target.reset(); $("#feedDate").value=todayStr(); $("#feedTime").value=nowTime();
+    save(); renderAll(); e.target.reset(); $("#feedDate").value=todayStr(); $("#feedTime").value=nowTime();
   });
 
-  $("#diaperForm").addEventListener("submit", async (e)=>{
+  $("#diaperForm")?.addEventListener("submit",(e)=>{
     e.preventDefault();
-    const item = {
-      date: $("#diaperDate").value,
-      time: $("#diaperTime").value,
-      dtype: $("#diaperType").value,
-      color: $("#diaperColor").value || "",
-      note: $("#diaperNote").value || ""
-    };
-    state.diaper.unshift(item); save(); renderAll();
-    if(cfg.remoteEnabled && cfg.endpointUrl){ try{ await remoteSend("diaper", item);}catch(e){console.warn(e);} }
-    e.target.reset(); $("#diaperDate").value=todayStr(); $("#diaperTime").value=nowTime();
+    state.diaper.unshift({
+      date:$("#diaperDate").value, time:$("#diaperTime").value,
+      dtype:$("#diaperType").value, color:$("#diaperColor").value||"", note:$("#diaperNote").value||""
+    });
+    save(); renderAll(); e.target.reset(); $("#diaperDate").value=todayStr(); $("#diaperTime").value=nowTime();
   });
 
-  $("#sleepForm").addEventListener("submit", async (e)=>{
+  $("#sleepForm")?.addEventListener("submit",(e)=>{
     e.preventDefault();
-    const start = $("#sleepStart").value, end = $("#sleepEnd").value;
-    const minutes = diffMinutes(start, end);
-    const item = {
-      date: $("#sleepDate").value,
-      start, end, minutes,
-      note: $("#sleepNote").value || ""
-    };
-    state.sleep.unshift(item); save(); renderAll();
-    if(cfg.remoteEnabled && cfg.endpointUrl){ try{ await remoteSend("sleep", item);}catch(e){console.warn(e);} }
-    e.target.reset(); $("#sleepDate").value=todayStr(); $("#sleepStart").value=nowTime(); $("#sleepEnd").value=nowTime();
+    const s=$("#sleepStart").value, t=$("#sleepEnd").value;
+    const m=((+t.slice(0,2))*60+(+t.slice(3)))-((+s.slice(0,2))*60+(+s.slice(3))); const mins=m<0?m+1440:m;
+    state.sleep.unshift({date:$("#sleepDate").value,start:s,end:t,minutes:mins,note:$("#sleepNote").value||""});
+    save(); renderAll(); e.target.reset(); $("#sleepDate").value=todayStr(); $("#sleepStart").value=nowTime(); $("#sleepEnd").value=nowTime();
   });
 
-  $("#growthForm").addEventListener("submit", async (e)=>{
+  $("#growthForm")?.addEventListener("submit",(e)=>{
     e.preventDefault();
-    const item = {
-      date: $("#growthDate").value,
-      weight: Number($("#growthWeight").value || 0),
-      height: $("#growthHeight").value ? Number($("#growthHeight").value) : "",
-      head: $("#growthHead").value ? Number($("#growthHead").value) : "",
-      temp: $("#growthTemp").value ? Number($("#growthTemp").value) : "",
-      note: $("#growthNote").value || ""
-    };
-    state.growth.unshift(item); save(); renderAll();
-    if(cfg.remoteEnabled && cfg.endpointUrl){ try{ await remoteSend("growth", item);}catch(e){console.warn(e);} }
-    e.target.reset(); $("#growthDate").value=todayStr();
+    state.growth.unshift({
+      date:$("#growthDate").value,
+      weight:+($("#growthWeight").value||0),
+      height:$("#growthHeight").value? +$("#growthHeight").value:"",
+      head:$("#growthHead").value? +$("#growthHead").value:"",
+      temp:$("#growthTemp").value? +$("#growthTemp").value:"",
+      note:$("#growthNote").value||""
+    });
+    save(); renderAll(); e.target.reset(); $("#growthDate").value=todayStr();
   });
 
-  function diffMinutes(start, end){
-    const [sh, sm] = start.split(":").map(Number);
-    const [eh, em] = end.split(":").map(Number);
-    let mins = (eh*60+em) - (sh*60+sm);
-    if(mins < 0) mins += 24*60;
-    return mins;
-  }
-
+  // ÖZETLER
+  function renderAll(){ renderSummary(); renderTable(); }
   function renderSummary(){
-    const today = todayStr();
-    const feeds = state.feed.filter(x=>x.date===today);
-    const diapers = state.diaper.filter(x=>x.date===today);
-    const sleeps = state.sleep.filter(x=>x.date===today);
-    const totalMl = feeds.reduce((s,x)=>s + (Number(x.amount)||0), 0);
-    const totalMin = feeds.reduce((s,x)=>s + (Number(x.duration)||0), 0);
-    const sleepMin = sleeps.reduce((s,x)=>s + (Number(x.minutes)||0), 0);
-    $("#summaryContent").innerHTML = `
-      <p><strong>Bugün:</strong> ${today}</p>
-      <ul>
-        <li>Beslenme sayısı: ${feeds.length}</li>
-        <li>Toplam miktar (ml): ${totalMl}</li>
-        <li>Toplam emzirme süresi (dk): ${totalMin}</li>
-        <li>Alt değişim: ${diapers.length} (Çiş/Kaka)</li>
-        <li>Toplam uyku (dk): ${sleepMin}</li>
-      </ul>
-    `;
+    const t=todayStr();
+    const feeds=state.feed.filter(x=>x.date===t);
+    const diapers=state.diaper.filter(x=>x.date===t);
+    const sleeps=state.sleep.filter(x=>x.date===t);
+    $("#sumFeedCount") && ($("#sumFeedCount").textContent=feeds.length);
+    $("#sumMl") && ($("#sumMl").textContent=feeds.reduce((s,x)=>s+(+x.amount||0),0));
+    $("#sumMin") && ($("#sumMin").textContent=feeds.reduce((s,x)=>s+(+x.duration||0),0));
+    $("#sumDiaper") && ($("#sumDiaper").textContent=diapers.length);
+    $("#sumSleep") && ($("#sumSleep").textContent=sleeps.reduce((s,x)=>s+(+x.minutes||0),0));
+    if($("#sinceLastFeed")){
+      if(state.feed.length){
+        const last=state.feed[0]; const [h,m]=last.time.split(":").map(Number);
+        const now=new Date(); const diff=(now.getHours()*60+now.getMinutes())-(h*60+m); const mins=diff<0?diff+1440:diff;
+        $("#sinceLastFeed").textContent=${Math.floor(mins/60)}s ${mins%60}d;
+      }else $("#sinceLastFeed").textContent="–";
+    }
   }
 
-  $("#exportJson").addEventListener("click", ()=>{
-    const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `bebek-takip-${todayStr()}.json`;
-    a.click();
-  });
-  $("#importBtn").addEventListener("click", ()=> $("#importJson").click());
-  $("#importJson").addEventListener("change", (e)=>{
-    const file = e.target.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = ()=>{ Object.assign(state, JSON.parse(reader.result)); save(); renderAll(); };
-    reader.readAsText(file);
-  });
-
-  $("#exportCsv").addEventListener("click", ()=>{
-    const today = todayStr();
-    const feeds = state.feed.filter(x=>x.date===today);
-    const rows = [["date","time","type","side","duration","amount","note"]]
-      .concat(feeds.map(x=>[x.date,x.time,x.type,x.side,x.duration,x.amount,x.note]));
-    const csv = rows.map(r=>r.map(v=>`"${(v??"").toString().replace(/"/g,'""')}"`).join(",")).join("\n");
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-    a.download = `bugun-beslenme-${today}.csv`;
-    a.click();
-  });
-
-  async function remoteSend(kind, payload){
-    if(!cfg.endpointUrl) return;
-    const headers = {"Content-Type":"application/json"};
-    if(cfg.authToken) headers["Authorization"] = "Bearer "+cfg.authToken;
-    await fetch(cfg.endpointUrl, { method:"POST", headers, body: JSON.stringify({kind, payload}) });
+  function renderTable(){
+    const tb=$("#feedTable tbody"); if(!tb) return;
+    const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-7);
+    const rows=state.feed.filter(x=> new Date(x.date)>=cutoff).slice(0,200);
+    tb.innerHTML="";
+    rows.forEach((r,i)=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${r.date}</td><td>${r.time}</td><td>${r.type}</td><td>${r.side||""}</td>
+      <td>${r.duration||""}</td><td>${r.amount||""}</td><td>${r.note||""}</td>
+      <td><button data-i="${i}" class="primary" style="padding:6px 10px">Sil</button></td>`;
+      tb.appendChild(tr);
+    });
+    tb.querySelectorAll("button").forEach(b=> b.onclick=()=>{ state.feed.splice(b.dataset.i,1); save(); renderAll(); });
   }
 
   renderAll();
