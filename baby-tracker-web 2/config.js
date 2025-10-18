@@ -1,5 +1,4 @@
+// Basit yerel (localStorage) çalışma modu
 window.BABY_TRACKER_CONFIG = {
-  remoteEnabled: false,
-  endpointUrl: "",
-  authToken: ""
+  remoteEnabled: false,  // ileride sunucu kullanırsak true olur
 };
